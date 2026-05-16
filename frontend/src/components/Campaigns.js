@@ -4,9 +4,22 @@ import { Link } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_API_URL || "";
 
+function getStatusLabel(status) {
+  if (status === "active") return "activ";
+  return "inactiv";
+}
+
 function Campaigns() {
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
+  const activeCampaigns = campaigns.filter((campaign) => campaign.status === "active");
+  const completedCampaigns = campaigns.filter((campaign) => campaign.status !== "active");
+
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return "";
+    if (imageUrl.startsWith("http")) return imageUrl;
+    return `${API_URL}${imageUrl}`;
+  };
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -14,7 +27,7 @@ function Campaigns() {
         const res = await axios.get(`${API_URL}/api/campaigns`);
         setCampaigns(res.data);
       } catch (err) {
-        alert("Campaniile nu au putut fi incarcate.");
+        alert("Campaniile nu au putut fi încărcate.");
       } finally {
         setLoading(false);
       }
@@ -23,43 +36,88 @@ function Campaigns() {
     fetchCampaigns();
   }, []);
 
-  if (loading) return <p>Se incarca...</p>;
+  if (loading) return <p>Se încarcă...</p>;
+
+  const renderCampaignCard = (campaign) => (
+    <div className="col-md-6 col-lg-4" key={campaign._id}>
+      <article className="campaign-card">
+        <div
+          className={`campaign-card-media${campaign.imageUrl ? " has-image" : ""}`}
+          style={
+            campaign.imageUrl
+              ? { backgroundImage: `linear-gradient(180deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.42)), url(${getImageUrl(campaign.imageUrl)})` }
+              : undefined
+          }
+        >
+          <span>{campaign.category || "social"}</span>
+        </div>
+        <div className="campaign-card-body">
+          <div className="status-pill">{getStatusLabel(campaign.status)}</div>
+          <h2>{campaign.title}</h2>
+          <p>{campaign.summary}</p>
+          <p className="goal-line">{campaign.goal}</p>
+          <div className="d-flex gap-2 flex-wrap">
+            {campaign.status === "active" ? (
+              <>
+                <Link className="btn btn-primary btn-sm" to="/petition">Semnează</Link>
+                <Link className="btn btn-outline-primary btn-sm" to="/donate">Donează</Link>
+              </>
+            ) : (
+              <span className="status-note">Țintă atinsă - campanie încheiată cu succes</span>
+            )}
+          </div>
+        </div>
+      </article>
+    </div>
+  );
 
   return (
     <div>
       <div className="page-heading">
-        <span className="eyebrow">Cauze active</span>
+        <span className="eyebrow">Cauze și rezultate</span>
         <h1>Campanii</h1>
-        <p>Campanii sociale gestionate de organizatie, cu petitii, donatii si implicare civica.</p>
+        <p>Campanii sociale gestionate de organizație, cu petiții, donații și implicare civică.</p>
       </div>
 
       {campaigns.length === 0 ? (
         <div className="content-panel">
-          <h2>Nu exista campanii inca</h2>
-          <p>Intra ca administrator si adauga prima campanie pentru demo.</p>
+          <h2>Nu există campanii încă</h2>
+          <p>Intră ca administrator și adaugă prima campanie pentru demo.</p>
         </div>
       ) : (
-        <div className="row g-4">
-          {campaigns.map((campaign) => (
-            <div className="col-md-6 col-lg-4" key={campaign._id}>
-              <article className="campaign-card">
-                <div className="campaign-card-media">
-                  <span>{campaign.category || "social"}</span>
-                </div>
-                <div className="campaign-card-body">
-                  <div className="status-pill">{campaign.status}</div>
-                  <h2>{campaign.title}</h2>
-                  <p>{campaign.summary}</p>
-                  <p className="goal-line">{campaign.goal}</p>
-                  <div className="d-flex gap-2 flex-wrap">
-                    <Link className="btn btn-primary btn-sm" to="/petition">Semneaza</Link>
-                    <Link className="btn btn-outline-primary btn-sm" to="/donate">Doneaza</Link>
-                  </div>
-                </div>
-              </article>
+        <>
+          <section className="campaign-section">
+            <div className="section-heading">
+              <span className="eyebrow">În desfășurare</span>
+              <h2>Campanii active</h2>
             </div>
-          ))}
-        </div>
+            {activeCampaigns.length === 0 ? (
+              <div className="content-panel">
+                <p>Nu există campanii active în acest moment.</p>
+              </div>
+            ) : (
+              <div className="row g-4">
+                {activeCampaigns.map(renderCampaignCard)}
+              </div>
+            )}
+          </section>
+
+          <section className="campaign-section">
+            <div className="section-heading">
+              <span className="eyebrow">Rezultate</span>
+              <h2>Campanii încheiate cu succes</h2>
+            </div>
+            {completedCampaigns.length === 0 ? (
+              <div className="content-panel">
+                <p>Campaniile finalizate vor apărea aici după atingerea țintei de donații.</p>
+              </div>
+            ) : (
+              <div className="row g-4">
+                {completedCampaigns.map(renderCampaignCard)}
+              </div>
+            )}
+          </section>
+        </>
       )}
     </div>
   );

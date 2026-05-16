@@ -1,16 +1,16 @@
-# Vocea pentru Copii - aplicatie e-campaign
+# Vocea pentru Copii - aplicație e-campaign
 
-Aceasta este copia adaptata din proiectul `turism-valcea` pentru tema 12:
-**Sisteme de tip e-activities: e-campaign, inclusiv solutii mobile**.
+Proiect pentru tema 12:
+**Sisteme de tip e-activities: e-campaign, inclusiv soluții mobile**.
 
-Aplicatia este o platforma ONG demonstrativa, inspirata ca structura de platforme precum Salvati Copiii, dar cu date fictive si identitate proprie.
+Aplicația este o platformă ONG demonstrativă, inspirată ca structură de platforme precum Salvați Copiii, dar cu date fictive și identitate proprie.
 
-## Functionalitati implementate
+## Funcționalități implementate
 
-1. Petitie online cu semnaturi salvate in MongoDB.
+1. Petiție online cu semnături salvate în MongoDB.
 2. Adeziuni/voluntariat cu aprobare din panoul de admin.
-3. Donatii online simulate, fara date reale de card.
-4. Forum comunitar cu topicuri si raspunsuri.
+3. Donații online simulate, fără date reale de card.
+4. Forum comunitar cu topicuri și răspunsuri.
 
 ## Tehnologii
 
@@ -32,9 +32,9 @@ npm run seed
 npm start
 ```
 
-Backend-ul porneste pe portul `5000`.
+Backend-ul pornește pe portul `5000`.
 
-Conturi demo dupa seed:
+Conturi demo după seed:
 
 ```txt
 Admin: admin / admin123
@@ -43,7 +43,7 @@ User:  demo / demo123
 
 ## Rulare frontend
 
-Intr-un terminal separat:
+Într-un terminal separat:
 
 ```bash
 cd frontend
@@ -51,7 +51,7 @@ npm install
 npm start
 ```
 
-Frontend-ul porneste de obicei pe `http://localhost:3000`.
+Frontend-ul pornește de obicei pe `http://localhost:3000`.
 
 ## Variabile de mediu
 
@@ -71,17 +71,17 @@ REACT_APP_API_URL=http://localhost:5000
 
 ## Flux de demo
 
-1. Pornesti MongoDB.
+1. Pornești MongoDB.
 2. Rulezi seed-ul.
 3. Intri pe frontend.
 4. Te autentifici cu `demo / demo123`.
-5. Semnezi petitia.
-6. Trimiti o cerere de voluntariat.
-7. Simulezi o donatie.
-8. Creezi o discutie in forum.
+5. Semnezi petiția.
+6. Trimiți o cerere de voluntariat.
+7. Simulezi o donație.
+8. Creezi o discuție în forum.
 9. Te autentifici cu `admin / admin123`.
-10. Verifici panoul de admin: campanii, semnaturi, donatii, voluntari, forum.
+10. Verifici panoul de admin: campanii, semnături, donații, voluntari, forum.
 
 ## Note
 
-Folderul vechi `turism-valcea` a ramas neatins. Aceasta copie este proiectul de lucru pentru tema e-campaign.
+Repository-ul conține proiectul de lucru pentru tema e-campaign.

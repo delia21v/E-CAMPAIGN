@@ -3,16 +3,51 @@ import axios from "axios";
 
 const API_URL = process.env.REACT_APP_API_URL || "";
 
+function getRequestErrorMessage(err) {
+  if (err.response) {
+    return `${err.response.status} - ${err.response.data?.msg || "eroare de la server"}`;
+  }
+  if (err.request) {
+    return "backend-ul nu răspunde";
+  }
+  return err.message || "eroare necunoscută";
+}
+
+function getCampaignStatusLabel(status) {
+  if (status === "active") return "activ";
+  return "inactiv";
+}
+
+function getVolunteerStatusLabel(status) {
+  if (status === "approved") return "aprobată";
+  if (status === "rejected") return "respinsă";
+  return "în așteptare";
+}
+
+const emptyDonationReport = {
+  campaign: null,
+  totalAmount: 0,
+  totalCount: 0,
+  targetAmount: 0,
+  percentage: 0,
+  isTargetReached: false,
+  donations: [],
+};
+
 function AdminPanel() {
   const token = localStorage.getItem("token");
   const [activeTab, setActiveTab] = useState("campaigns");
+  const [editingCampaignId, setEditingCampaignId] = useState(null);
   const [campaigns, setCampaigns] = useState([]);
   const [selectedCampaignId, setSelectedCampaignId] = useState("");
   const [signatures, setSignatures] = useState([]);
-  const [donations, setDonations] = useState([]);
-  const [donationStats, setDonationStats] = useState({ totalAmount: 0, totalCount: 0 });
+  const [selectedDonationCampaignId, setSelectedDonationCampaignId] = useState("");
+  const [donationReport, setDonationReport] = useState(emptyDonationReport);
   const [volunteers, setVolunteers] = useState([]);
+  const [activeVolunteers, setActiveVolunteers] = useState([]);
   const [topics, setTopics] = useState([]);
+  const [campaignImage, setCampaignImage] = useState(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
   const [campaignForm, setCampaignForm] = useState({
     title: "",
     summary: "",
@@ -32,6 +67,10 @@ function AdminPanel() {
       setSelectedCampaignId(res.data[0]._id);
       fetchSignatures(res.data[0]._id);
     }
+    if (res.data[0] && !selectedDonationCampaignId) {
+      setSelectedDonationCampaignId(res.data[0]._id);
+      fetchCampaignDonationStats(res.data[0]._id);
+    }
   };
 
   const fetchSignatures = async (campaignId) => {
@@ -40,18 +79,24 @@ function AdminPanel() {
     setSignatures(res.data);
   };
 
-  const fetchDonations = async () => {
-    const [donationRes, statsRes] = await Promise.all([
-      axios.get(`${API_URL}/api/donations`, authConfig),
-      axios.get(`${API_URL}/api/donations/stats`, authConfig),
-    ]);
-    setDonations(donationRes.data);
-    setDonationStats(statsRes.data);
+  const fetchCampaignDonationStats = async (campaignId) => {
+    if (!campaignId) {
+      setDonationReport(emptyDonationReport);
+      return;
+    }
+
+    const res = await axios.get(`${API_URL}/api/donations/stats/by-campaign/${campaignId}`, authConfig);
+    setDonationReport(res.data);
   };
 
   const fetchVolunteers = async () => {
     const res = await axios.get(`${API_URL}/api/volunteers`, authConfig);
     setVolunteers(res.data);
+  };
+
+  const fetchActiveVolunteers = async () => {
+    const res = await axios.get(`${API_URL}/api/volunteers/active`, authConfig);
+    setActiveVolunteers(res.data);
   };
 
   const fetchTopics = async () => {
@@ -60,10 +105,26 @@ function AdminPanel() {
   };
 
   const fetchAll = async () => {
+    const loadStep = async (label, action) => {
+      try {
+        await action();
+      } catch (err) {
+        err.adminSection = label;
+        throw err;
+      }
+    };
+
     try {
-      await Promise.all([fetchCampaigns(), fetchDonations(), fetchVolunteers(), fetchTopics()]);
+      await Promise.all([
+        loadStep("campanii", fetchCampaigns),
+        loadStep("donații", () => fetchCampaignDonationStats(selectedDonationCampaignId)),
+        loadStep("voluntari", fetchVolunteers),
+        loadStep("voluntari activi", fetchActiveVolunteers),
+        loadStep("forum", fetchTopics),
+      ]);
     } catch (err) {
-      alert("Datele de administrare nu au putut fi incarcate.");
+      console.error("Eroare încărcare admin:", err);
+      alert(`Datele de administrare nu au putut fi încărcate (${err.adminSection || "general"}: ${getRequestErrorMessage(err)}).`);
     }
   };
 
@@ -76,56 +137,105 @@ function AdminPanel() {
     setCampaignForm({ ...campaignForm, [e.target.name]: e.target.value });
   };
 
-  const handleAddCampaign = async (e) => {
+  const handleCampaignImageChange = (e) => {
+    setCampaignImage(e.target.files[0] || null);
+  };
+
+  const resetCampaignForm = () => {
+    setCampaignForm({
+      title: "",
+      summary: "",
+      description: "",
+      category: "social",
+      goal: "",
+      targetAmount: 0,
+      status: "active",
+    });
+    setCampaignImage(null);
+    setEditingCampaignId(null);
+    setFileInputKey((current) => current + 1);
+  };
+
+  const handleEditCampaign = (campaign) => {
+    setEditingCampaignId(campaign._id);
+    setCampaignForm({
+      title: campaign.title || "",
+      summary: campaign.summary || "",
+      description: campaign.description || "",
+      category: campaign.category || "social",
+      goal: campaign.goal || "",
+      targetAmount: campaign.targetAmount || 0,
+      status: campaign.status === "closed" ? "inactive" : campaign.status || "active",
+    });
+    setCampaignImage(null);
+    setFileInputKey((current) => current + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSaveCampaign = async (e) => {
     e.preventDefault();
 
     try {
-      await axios.post(
-        `${API_URL}/api/campaigns`,
-        { ...campaignForm, targetAmount: Number(campaignForm.targetAmount) },
-        authConfig
-      );
-      setCampaignForm({
-        title: "",
-        summary: "",
-        description: "",
-        category: "social",
-        goal: "",
-        targetAmount: 0,
-        status: "active",
+      const formData = new FormData();
+      Object.entries(campaignForm).forEach(([key, value]) => {
+        formData.append(key, value);
       });
+      if (campaignImage) {
+        formData.append("image", campaignImage);
+      }
+
+      if (editingCampaignId) {
+        await axios.put(
+          `${API_URL}/api/campaigns/${editingCampaignId}`,
+          formData,
+          { headers: { Authorization: token } }
+        );
+      } else {
+        await axios.post(
+          `${API_URL}/api/campaigns`,
+          formData,
+          { headers: { Authorization: token } }
+        );
+      }
+
+      resetCampaignForm();
       fetchCampaigns();
     } catch (err) {
-      alert(err.response?.data?.msg || "Campania nu a putut fi adaugata.");
+      alert(err.response?.data?.msg || "Campania nu a putut fi salvată.");
     }
   };
 
   const handleDeleteCampaign = async (id) => {
-    if (!window.confirm("Stergi aceasta campanie?")) return;
+    if (!window.confirm("Ștergi această campanie?")) return;
     await axios.delete(`${API_URL}/api/campaigns/${id}`, authConfig);
     fetchCampaigns();
   };
 
+  const handleDonationCampaignChange = (id) => {
+    setSelectedDonationCampaignId(id);
+    fetchCampaignDonationStats(id).catch(() => alert("Statisticile donațiilor nu au putut fi încărcate."));
+  };
+
   const handleSelectedCampaign = (id) => {
     setSelectedCampaignId(id);
-    fetchSignatures(id).catch(() => alert("Semnaturile nu au putut fi incarcate."));
+    fetchSignatures(id).catch(() => alert("Semnăturile nu au putut fi încărcate."));
   };
 
   const updateVolunteerStatus = async (id, status) => {
     await axios.patch(`${API_URL}/api/volunteers/${id}/status`, { status }, authConfig);
-    fetchVolunteers();
+    await Promise.all([fetchVolunteers(), fetchActiveVolunteers()]);
   };
 
   const deleteTopic = async (id) => {
-    if (!window.confirm("Stergi acest topic si raspunsurile lui?")) return;
+    if (!window.confirm("Ștergi acest topic și răspunsurile lui?")) return;
     await axios.delete(`${API_URL}/api/forum/topics/${id}`, authConfig);
     fetchTopics();
   };
 
   const tabs = [
     ["campaigns", "Campanii"],
-    ["signatures", "Semnaturi"],
-    ["donations", "Donatii"],
+    ["signatures", "Semnături"],
+    ["donations", "Donații"],
     ["volunteers", "Voluntari"],
     ["forum", "Forum"],
   ];
@@ -152,8 +262,8 @@ function AdminPanel() {
 
       {activeTab === "campaigns" && (
         <section className="admin-grid">
-          <form className="content-panel" onSubmit={handleAddCampaign}>
-            <h2>Adauga o campanie</h2>
+          <form className="content-panel" onSubmit={handleSaveCampaign}>
+            <h2>{editingCampaignId ? "Editează campania" : "Adaugă o campanie"}</h2>
             <label className="form-label">Titlu</label>
             <input name="title" className="form-control" value={campaignForm.title} onChange={handleCampaignChange} required />
             <label className="form-label">Rezumat</label>
@@ -162,11 +272,39 @@ function AdminPanel() {
             <textarea name="description" rows="5" className="form-control" value={campaignForm.description} onChange={handleCampaignChange} required />
             <label className="form-label">Categorie</label>
             <input name="category" className="form-control" value={campaignForm.category} onChange={handleCampaignChange} />
+            <label className="form-label">Status</label>
+            <select name="status" className="form-select" value={campaignForm.status} onChange={handleCampaignChange}>
+              <option value="active">activ</option>
+              <option value="inactive">inactiv</option>
+            </select>
             <label className="form-label">Obiectiv</label>
             <input name="goal" className="form-control" value={campaignForm.goal} onChange={handleCampaignChange} />
-            <label className="form-label">Tinta donatii</label>
+            <label className="form-label">Țintă donații</label>
             <input name="targetAmount" type="number" className="form-control" value={campaignForm.targetAmount} onChange={handleCampaignChange} />
-            <button className="btn btn-primary w-100 mt-2">Salveaza campania</button>
+            <label className="form-label">Imagine campanie</label>
+            <input
+              key={fileInputKey}
+              name="image"
+              type="file"
+              accept="image/*"
+              className="form-control"
+              onChange={handleCampaignImageChange}
+            />
+            <p className="form-help">
+              {editingCampaignId
+                ? "Alege o imagine nouă doar dacă vrei să o înlocuiești pe cea existentă."
+                : "Imaginea este opțională, dar ajută cardul campaniei să arate mai bine."}
+            </p>
+            <div className="button-stack mt-2">
+              <button className="btn btn-primary flex-fill">
+                {editingCampaignId ? "Salvează modificările" : "Salvează campania"}
+              </button>
+              {editingCampaignId && (
+                <button type="button" className="btn btn-outline-secondary flex-fill" onClick={resetCampaignForm}>
+                  Anulează
+                </button>
+              )}
+            </div>
           </form>
 
           <div className="content-panel">
@@ -176,14 +314,19 @@ function AdminPanel() {
                 <div className="admin-row" key={campaign._id}>
                   <div>
                     <strong>{campaign.title}</strong>
-                    <span>{campaign.status} - {campaign.category}</span>
+                    <span>{getCampaignStatusLabel(campaign.status)} - {campaign.category}{campaign.imageUrl ? " - imagine adăugată" : ""}</span>
                   </div>
-                  <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteCampaign(campaign._id)}>
-                    Sterge
-                  </button>
+                  <div className="button-stack">
+                    <button className="btn btn-sm btn-outline-primary" onClick={() => handleEditCampaign(campaign)}>
+                      Editează
+                    </button>
+                    <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteCampaign(campaign._id)}>
+                      Șterge
+                    </button>
+                  </div>
                 </div>
               ))}
-              {campaigns.length === 0 && <p>Nu exista campanii.</p>}
+              {campaigns.length === 0 && <p>Nu există campanii.</p>}
             </div>
           </div>
         </section>
@@ -191,7 +334,7 @@ function AdminPanel() {
 
       {activeTab === "signatures" && (
         <section className="content-panel">
-          <h2>Semnaturi petitie</h2>
+          <h2>Semnături petiție</h2>
           <select className="form-select mb-3" value={selectedCampaignId} onChange={(e) => handleSelectedCampaign(e.target.value)}>
             {campaigns.map((campaign) => (
               <option value={campaign._id} key={campaign._id}>{campaign.title}</option>
@@ -203,7 +346,7 @@ function AdminPanel() {
                 <tr>
                   <th>Nume</th>
                   <th>Email</th>
-                  <th>Oras</th>
+                  <th>Oraș</th>
                   <th>Mesaj</th>
                 </tr>
               </thead>
@@ -219,57 +362,92 @@ function AdminPanel() {
               </tbody>
             </table>
           </div>
-          {signatures.length === 0 && <p>Nu exista semnaturi pentru campania selectata.</p>}
+          {signatures.length === 0 && <p>Nu există semnături pentru campania selectată.</p>}
         </section>
       )}
 
       {activeTab === "donations" && (
         <section className="content-panel">
-          <h2>Donatii simulate</h2>
-          <div className="impact-grid compact">
-            <div className="impact-item">
-              <strong>{donationStats.totalAmount || 0} RON</strong>
-              <span>total confirmat</span>
+          <h2>Donații pe campanie</h2>
+          <label className="form-label">Alege campania</label>
+          <select className="form-select mb-3" value={selectedDonationCampaignId} onChange={(e) => handleDonationCampaignChange(e.target.value)}>
+            {campaigns.map((campaign) => (
+              <option value={campaign._id} key={campaign._id}>{campaign.title}</option>
+            ))}
+          </select>
+
+          <div className="donation-progress-panel">
+            <div className="donation-progress-header">
+              <div>
+                <strong>{donationReport.totalAmount || 0} RON</strong>
+                <span>strânși din {donationReport.targetAmount || 0} RON</span>
+              </div>
+              <div>
+                <strong>{donationReport.percentage || 0}%</strong>
+                <span>{donationReport.isTargetReached ? "țintă atinsă" : "progres donații"}</span>
+              </div>
             </div>
-            <div className="impact-item">
-              <strong>{donationStats.totalCount || 0}</strong>
-              <span>donatii</span>
+            <div className="progress donation-progress" role="progressbar" aria-valuenow={donationReport.percentage || 0} aria-valuemin="0" aria-valuemax="100">
+              <div className="progress-bar" style={{ width: `${donationReport.percentage || 0}%` }}></div>
             </div>
+            {donationReport.isTargetReached && (
+              <p className="form-help">Campania a ajuns la 100% și este marcată automat ca inactivă.</p>
+            )}
           </div>
+
           <div className="admin-list mt-3">
-            {donations.map((donation) => (
+            {donationReport.donations.map((donation) => (
               <div className="admin-row" key={donation._id}>
                 <div>
                   <strong>{donation.donorName} - {donation.amount} {donation.currency}</strong>
-                  <span>{donation.campaignId?.title || "campanie"} - {donation.status}</span>
+                  <span>{donation.email} - {donation.status}</span>
                 </div>
               </div>
             ))}
-            {donations.length === 0 && <p>Nu exista donatii.</p>}
+            {donationReport.donations.length === 0 && <p>Nu există donații pentru campania selectată.</p>}
           </div>
         </section>
       )}
 
       {activeTab === "volunteers" && (
-        <section className="content-panel">
-          <h2>Cereri voluntariat</h2>
-          <div className="admin-list">
-            {volunteers.map((volunteer) => (
-              <div className="admin-row" key={volunteer._id}>
-                <div>
-                  <strong>{volunteer.fullName}</strong>
-                  <span>{volunteer.email} - {volunteer.city} - status: {volunteer.status}</span>
-                  <p>{volunteer.motivation}</p>
+        <div className="admin-section-stack">
+          <section className="content-panel">
+            <h2>Cereri voluntariat în așteptare</h2>
+            <div className="admin-list">
+              {volunteers.map((volunteer) => (
+                <div className="admin-row" key={volunteer._id}>
+                  <div>
+                    <strong>{volunteer.fullName}</strong>
+                    <span>{volunteer.email} - {volunteer.city} - status: {getVolunteerStatusLabel(volunteer.status)}</span>
+                    <p>{volunteer.motivation}</p>
+                  </div>
+                  <div className="button-stack">
+                    <button className="btn btn-sm btn-success" onClick={() => updateVolunteerStatus(volunteer._id, "approved")}>Aprobă</button>
+                    <button className="btn btn-sm btn-outline-danger" onClick={() => updateVolunteerStatus(volunteer._id, "rejected")}>Respinge</button>
+                  </div>
                 </div>
-                <div className="button-stack">
-                  <button className="btn btn-sm btn-success" onClick={() => updateVolunteerStatus(volunteer._id, "approved")}>Aproba</button>
-                  <button className="btn btn-sm btn-outline-danger" onClick={() => updateVolunteerStatus(volunteer._id, "rejected")}>Respinge</button>
+              ))}
+              {volunteers.length === 0 && <p>Nu există cereri în așteptare.</p>}
+            </div>
+          </section>
+
+          <section className="content-panel">
+            <h2>Voluntari activi</h2>
+            <div className="admin-list">
+              {activeVolunteers.map((volunteer) => (
+                <div className="admin-row" key={volunteer._id}>
+                  <div>
+                    <strong>{volunteer.fullName}</strong>
+                    <span>{volunteer.email} - {volunteer.city} - {volunteer.phone}</span>
+                    <span>Vârstă: {volunteer.age} - status: {getVolunteerStatusLabel(volunteer.status)}</span>
+                    <p>{volunteer.motivation}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-            {volunteers.length === 0 && <p>Nu exista cereri.</p>}
-          </div>
-        </section>
+              ))}
+              {activeVolunteers.length === 0 && <p>Nu există voluntari activi.</p>}
+            </div>
+          </section>
+        </div>
       )}
 
       {activeTab === "forum" && (
@@ -283,11 +461,11 @@ function AdminPanel() {
                   <span>autor: {topic.authorId?.username || "utilizator"}</span>
                 </div>
                 <button className="btn btn-sm btn-outline-danger" onClick={() => deleteTopic(topic._id)}>
-                  Sterge
+                  Șterge
                 </button>
               </div>
             ))}
-            {topics.length === 0 && <p>Nu exista topicuri.</p>}
+            {topics.length === 0 && <p>Nu există topicuri.</p>}
           </div>
         </section>
       )}

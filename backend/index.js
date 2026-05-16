@@ -23,6 +23,7 @@ app.use("/api/donations", donationRoutes);
 app.use("/api/volunteers", volunteerRoutes);
 app.use("/api/forum", forumRoutes);
 app.use("/images", express.static(path.join(__dirname, "../frontend/public/images")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use((req, res, next) => {
   console.log(req.method, req.url);

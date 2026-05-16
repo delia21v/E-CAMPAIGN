@@ -17,10 +17,10 @@ function Login() {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("isAdmin", res.data.isAdmin);
       localStorage.setItem("username", res.data.username);
-      alert("Autentificare reusita!");
+      alert("Autentificare reușită!");
       window.location.href = "/";
     } catch (err) {
-      alert("Eroare la login. Verifica datele.");
+      alert(err.response?.data?.msg || "Eroare la login. Verifică dacă backend-ul este pornit.");
     }
   };
 
@@ -33,17 +33,17 @@ function Login() {
 
     try {
       await axios.post(`${API_URL}/api/users/register`, { username, email, password });
-      alert("Inregistrare reusita! Te poti autentifica.");
+      alert("Înregistrare reușită! Te poți autentifica.");
       setIsRegister(false);
     } catch (err) {
-      alert("Eroare la inregistrare. Incearca un alt nume.");
+      alert(err.response?.data?.msg || "Eroare la înregistrare. Încearcă un alt nume.");
     }
   };
 
   return (
     <div className="auth-layout">
       <div className="content-panel auth-panel">
-        <h1>{isRegister ? "Inregistrare" : "Autentificare"}</h1>
+        <h1>{isRegister ? "Înregistrare" : "Autentificare"}</h1>
         <form onSubmit={isRegister ? handleRegister : handleLogin}>
           <label className="form-label">Nume utilizator</label>
           <input type="text" className="form-control" value={username} onChange={(e) => setUsername(e.target.value)} required />
@@ -55,22 +55,22 @@ function Login() {
             </>
           )}
 
-          <label className="form-label">Parola</label>
+          <label className="form-label">Parolă</label>
           <input type="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} required />
 
           {isRegister && (
             <>
-              <label className="form-label">Confirma parola</label>
+              <label className="form-label">Confirmă parola</label>
               <input type="password" className="form-control" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
             </>
           )}
 
           <button type="submit" className="btn btn-primary w-100 mt-2 mb-3">
-            {isRegister ? "Inregistreaza-te" : "Autentifica-te"}
+            {isRegister ? "Înregistrează-te" : "Autentifică-te"}
           </button>
         </form>
         <button className="btn btn-outline-secondary w-100" onClick={() => setIsRegister(!isRegister)}>
-          {isRegister ? "Ai deja cont? Autentifica-te" : "Nu ai cont? Inregistreaza-te"}
+          {isRegister ? "Ai deja cont? Autentifică-te" : "Nu ai cont? Înregistrează-te"}
         </button>
       </div>
     </div>

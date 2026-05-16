@@ -82,6 +82,18 @@ p {
   border-color: var(--brand);
 }
 
+.hero-actions .btn-outline-primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #ffffff;
+}
+
+.hero-actions .btn-outline-primary:hover {
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
+  color: #ffffff;
+}
+
 .content-panel,
 .campaign-card,
 .feature-card {
@@ -206,6 +218,18 @@ p {
   margin: 6px 0;
 }
 
+.campaign-section {
+  margin-top: 28px;
+}
+
+.section-heading {
+  margin-bottom: 16px;
+}
+
+.section-heading h2 {
+  margin: 4px 0 0;
+}
+
 .two-column-layout {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
@@ -221,9 +245,15 @@ p {
 .campaign-card-media {
   align-items: end;
   background: linear-gradient(135deg, var(--sky), var(--accent-soft));
+  background-position: center;
+  background-size: cover;
   display: flex;
   height: 132px;
   padding: 16px;
+}
+
+.campaign-card-media.has-image {
+  min-height: 168px;
 }
 
 .campaign-card-media span,
@@ -250,6 +280,12 @@ p {
 
 .goal-line {
   color: var(--brand-dark);
+  font-weight: 700;
+}
+
+.status-note {
+  color: var(--muted);
+  font-size: 0.9rem;
   font-weight: 700;
 }
 
@@ -326,6 +362,11 @@ p {
   gap: 24px;
 }
 
+.admin-section-stack {
+  display: grid;
+  gap: 20px;
+}
+
 .admin-list {
   display: grid;
   gap: 12px;
@@ -361,6 +402,52 @@ p {
   gap: 8px;
 }
 
+.donation-progress-panel {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.donation-progress-header {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.donation-progress-header strong {
+  color: var(--brand-dark);
+  display: block;
+  font-size: 1.5rem;
+}
+
+.donation-progress-header span {
+  color: var(--muted);
+  display: block;
+}
+
+.donation-progress {
+  height: 16px;
+}
+
+.donation-progress .progress-bar {
+  background-color: var(--accent);
+}
+
+.application-details {
+  background: var(--sky);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+
+.application-details span {
+  color: var(--muted);
+}
+
 .topic-list,
 .reply-list {
   display: grid;
@@ -388,6 +475,12 @@ p {
   color: var(--ink);
   font-weight: 700;
   margin-top: 10px;
+}
+
+.form-help {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 6px 0 0;
 }
 
 .form-control,
