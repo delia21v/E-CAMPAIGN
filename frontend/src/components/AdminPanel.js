@@ -16,6 +16,7 @@ function getRequestErrorMessage(err) {
 function AdminPanel() {
   const token = localStorage.getItem("token");
   const [activeTab, setActiveTab] = useState("campaigns");
+  const [editingCampaignId, setEditingCampaignId] = useState(null);
   const [campaigns, setCampaigns] = useState([]);
   const [selectedCampaignId, setSelectedCampaignId] = useState("");
   const [signatures, setSignatures] = useState([]);
@@ -107,7 +108,38 @@ function AdminPanel() {
     setCampaignImage(e.target.files[0] || null);
   };
 
-  const handleAddCampaign = async (e) => {
+  const resetCampaignForm = () => {
+    setCampaignForm({
+      title: "",
+      summary: "",
+      description: "",
+      category: "social",
+      goal: "",
+      targetAmount: 0,
+      status: "active",
+    });
+    setCampaignImage(null);
+    setEditingCampaignId(null);
+    setFileInputKey((current) => current + 1);
+  };
+
+  const handleEditCampaign = (campaign) => {
+    setEditingCampaignId(campaign._id);
+    setCampaignForm({
+      title: campaign.title || "",
+      summary: campaign.summary || "",
+      description: campaign.description || "",
+      category: campaign.category || "social",
+      goal: campaign.goal || "",
+      targetAmount: campaign.targetAmount || 0,
+      status: campaign.status || "active",
+    });
+    setCampaignImage(null);
+    setFileInputKey((current) => current + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSaveCampaign = async (e) => {
     e.preventDefault();
 
     try {
@@ -119,25 +151,24 @@ function AdminPanel() {
         formData.append("image", campaignImage);
       }
 
-      await axios.post(
-        `${API_URL}/api/campaigns`,
-        formData,
-        { headers: { Authorization: token } }
-      );
-      setCampaignForm({
-        title: "",
-        summary: "",
-        description: "",
-        category: "social",
-        goal: "",
-        targetAmount: 0,
-        status: "active",
-      });
-      setCampaignImage(null);
-      setFileInputKey((current) => current + 1);
+      if (editingCampaignId) {
+        await axios.put(
+          `${API_URL}/api/campaigns/${editingCampaignId}`,
+          formData,
+          { headers: { Authorization: token } }
+        );
+      } else {
+        await axios.post(
+          `${API_URL}/api/campaigns`,
+          formData,
+          { headers: { Authorization: token } }
+        );
+      }
+
+      resetCampaignForm();
       fetchCampaigns();
     } catch (err) {
-      alert(err.response?.data?.msg || "Campania nu a putut fi adaugata.");
+      alert(err.response?.data?.msg || "Campania nu a putut fi salvata.");
     }
   };
 
@@ -193,8 +224,8 @@ function AdminPanel() {
 
       {activeTab === "campaigns" && (
         <section className="admin-grid">
-          <form className="content-panel" onSubmit={handleAddCampaign}>
-            <h2>Adauga o campanie</h2>
+          <form className="content-panel" onSubmit={handleSaveCampaign}>
+            <h2>{editingCampaignId ? "Editeaza campania" : "Adauga o campanie"}</h2>
             <label className="form-label">Titlu</label>
             <input name="title" className="form-control" value={campaignForm.title} onChange={handleCampaignChange} required />
             <label className="form-label">Rezumat</label>
@@ -203,6 +234,11 @@ function AdminPanel() {
             <textarea name="description" rows="5" className="form-control" value={campaignForm.description} onChange={handleCampaignChange} required />
             <label className="form-label">Categorie</label>
             <input name="category" className="form-control" value={campaignForm.category} onChange={handleCampaignChange} />
+            <label className="form-label">Status</label>
+            <select name="status" className="form-select" value={campaignForm.status} onChange={handleCampaignChange}>
+              <option value="active">active</option>
+              <option value="closed">closed</option>
+            </select>
             <label className="form-label">Obiectiv</label>
             <input name="goal" className="form-control" value={campaignForm.goal} onChange={handleCampaignChange} />
             <label className="form-label">Tinta donatii</label>
@@ -216,7 +252,21 @@ function AdminPanel() {
               className="form-control"
               onChange={handleCampaignImageChange}
             />
-            <button className="btn btn-primary w-100 mt-2">Salveaza campania</button>
+            <p className="form-help">
+              {editingCampaignId
+                ? "Alege o imagine noua doar daca vrei sa o inlocuiesti pe cea existenta."
+                : "Imaginea este optionala, dar ajuta cardul campaniei sa arate mai bine."}
+            </p>
+            <div className="button-stack mt-2">
+              <button className="btn btn-primary flex-fill">
+                {editingCampaignId ? "Salveaza modificarile" : "Salveaza campania"}
+              </button>
+              {editingCampaignId && (
+                <button type="button" className="btn btn-outline-secondary flex-fill" onClick={resetCampaignForm}>
+                  Anuleaza
+                </button>
+              )}
+            </div>
           </form>
 
           <div className="content-panel">
@@ -228,9 +278,14 @@ function AdminPanel() {
                     <strong>{campaign.title}</strong>
                     <span>{campaign.status} - {campaign.category}{campaign.imageUrl ? " - imagine adaugata" : ""}</span>
                   </div>
-                  <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteCampaign(campaign._id)}>
-                    Sterge
-                  </button>
+                  <div className="button-stack">
+                    <button className="btn btn-sm btn-outline-primary" onClick={() => handleEditCampaign(campaign)}>
+                      Editeaza
+                    </button>
+                    <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteCampaign(campaign._id)}>
+                      Sterge
+                    </button>
+                  </div>
                 </div>
               ))}
               {campaigns.length === 0 && <p>Nu exista campanii.</p>}

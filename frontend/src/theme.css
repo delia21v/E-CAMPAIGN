@@ -396,6 +396,12 @@ p {
   margin-top: 10px;
 }
 
+.form-help {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 6px 0 0;
+}
+
 .form-control,
 .form-select {
   border-color: var(--line);
