@@ -34,7 +34,7 @@ router.get("/", verifyToken, async (req, res) => {
   if (!req.user.isAdmin) return res.status(403).json({ msg: "Doar adminul poate vedea cererile" });
 
   try {
-    const applications = await VolunteerApplication.find()
+    const applications = await VolunteerApplication.find({ status: "pending" })
       .sort({ createdAt: -1 })
       .populate("userId", "username");
     res.json(applications);

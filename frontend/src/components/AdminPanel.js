@@ -404,7 +404,7 @@ function AdminPanel() {
 
       {activeTab === "volunteers" && (
         <section className="content-panel">
-          <h2>Cereri voluntariat</h2>
+          <h2>Cereri voluntariat în așteptare</h2>
           <div className="admin-list">
             {volunteers.map((volunteer) => (
               <div className="admin-row" key={volunteer._id}>
@@ -419,7 +419,7 @@ function AdminPanel() {
                 </div>
               </div>
             ))}
-            {volunteers.length === 0 && <p>Nu există cereri.</p>}
+            {volunteers.length === 0 && <p>Nu există cereri în așteptare.</p>}
           </div>
         </section>
       )}
