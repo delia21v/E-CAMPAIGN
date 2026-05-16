@@ -7,9 +7,9 @@ const verifyToken = require("../middleware/auth");
 router.post("/sign", verifyToken, async (req, res) => {
   try {
     const campaign = await Campaign.findById(req.body.campaignId);
-    if (!campaign) return res.status(404).json({ msg: "Campanie inexistenta" });
+    if (!campaign) return res.status(404).json({ msg: "Campanie inexistentă" });
     if (campaign.status === "inactive" || campaign.status === "closed") {
-      return res.status(400).json({ msg: "Campania este inactiva si petitia este inchisa" });
+      return res.status(400).json({ msg: "Campania este inactivă și petiția este închisă" });
     }
 
     const signature = await PetitionSignature.create({
@@ -19,9 +19,9 @@ router.post("/sign", verifyToken, async (req, res) => {
     res.status(201).json(signature);
   } catch (err) {
     if (err.code === 11000) {
-      return res.status(400).json({ msg: "Ai semnat deja aceasta petitie cu acest email" });
+      return res.status(400).json({ msg: "Ai semnat deja această petiție cu acest email" });
     }
-    res.status(400).json({ msg: "Semnatura nu a putut fi salvata", error: err.message });
+    res.status(400).json({ msg: "Semnătura nu a putut fi salvată", error: err.message });
   }
 });
 
@@ -30,12 +30,12 @@ router.get("/count/:campaignId", async (req, res) => {
     const count = await PetitionSignature.countDocuments({ campaignId: req.params.campaignId });
     res.json({ count });
   } catch (err) {
-    res.status(500).json({ msg: "Eroare la calcularea semnaturilor" });
+    res.status(500).json({ msg: "Eroare la calcularea semnăturilor" });
   }
 });
 
 router.get("/signatures/:campaignId", verifyToken, async (req, res) => {
-  if (!req.user.isAdmin) return res.status(403).json({ msg: "Doar adminul poate vedea semnaturile" });
+  if (!req.user.isAdmin) return res.status(403).json({ msg: "Doar adminul poate vedea semnăturile" });
 
   try {
     const signatures = await PetitionSignature.find({ campaignId: req.params.campaignId })
@@ -43,7 +43,7 @@ router.get("/signatures/:campaignId", verifyToken, async (req, res) => {
       .populate("userId", "username");
     res.json(signatures);
   } catch (err) {
-    res.status(500).json({ msg: "Eroare la incarcarea semnaturilor" });
+    res.status(500).json({ msg: "Eroare la încărcarea semnăturilor" });
   }
 });
 

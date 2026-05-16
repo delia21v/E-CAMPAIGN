@@ -25,7 +25,7 @@ function Petition() {
       if (firstActiveCampaign) setCampaignId(firstActiveCampaign._id);
     };
 
-    fetchCampaigns().catch(() => alert("Campaniile nu au putut fi incarcate."));
+    fetchCampaigns().catch(() => alert("Campaniile nu au putut fi încărcate."));
   }, []);
 
   useEffect(() => {
@@ -49,27 +49,27 @@ function Petition() {
         { ...form, campaignId },
         { headers: { Authorization: token } }
       );
-      alert("Semnatura a fost inregistrata.");
+      alert("Semnătura a fost înregistrată.");
       setForm({ fullName: "", email: "", city: "", message: "" });
       const res = await axios.get(`${API_URL}/api/petition/count/${campaignId}`);
       setCount(res.data.count);
     } catch (err) {
-      alert(err.response?.data?.msg || "Semnatura nu a putut fi salvata.");
+      alert(err.response?.data?.msg || "Semnătura nu a putut fi salvată.");
     }
   };
 
   return (
     <div className="two-column-layout">
       <section className="content-panel">
-        <span className="eyebrow">Petitie online</span>
-        <h1>Semneaza pentru sustinerea campaniei</h1>
+        <span className="eyebrow">Petiție online</span>
+        <h1>Semnează pentru susținerea campaniei</h1>
         <p>
-          Petitia demonstreaza partea de e-campaign in care utilizatorii sustin cauza
-          printr-o actiune online salvata in baza de date.
+          Petiția demonstrează partea de e-campaign în care utilizatorii susțin cauza
+          printr-o acțiune online salvată în baza de date.
         </p>
         <div className="signature-counter">
           <strong>{count}</strong>
-          <span>semnaturi inregistrate</span>
+          <span>semnături înregistrate</span>
         </div>
       </section>
 
@@ -81,7 +81,7 @@ function Petition() {
           ))}
         </select>
         {activeCampaigns.length === 0 && (
-          <p className="form-help">Nu exista campanii active pentru petitie.</p>
+          <p className="form-help">Nu există campanii active pentru petiție.</p>
         )}
 
         <label className="form-label">Nume complet</label>
@@ -90,13 +90,13 @@ function Petition() {
         <label className="form-label">Email</label>
         <input name="email" type="email" className="form-control" value={form.email} onChange={handleChange} required />
 
-        <label className="form-label">Oras</label>
+        <label className="form-label">Oraș</label>
         <input name="city" className="form-control" value={form.city} onChange={handleChange} required />
 
-        <label className="form-label">Mesaj optional</label>
+        <label className="form-label">Mesaj opțional</label>
         <textarea name="message" className="form-control" rows="4" value={form.message} onChange={handleChange} />
 
-        <button className="btn btn-primary w-100 mt-2" disabled={!campaignId}>Semneaza petitia</button>
+        <button className="btn btn-primary w-100 mt-2" disabled={!campaignId}>Semnează petiția</button>
       </form>
     </div>
   );

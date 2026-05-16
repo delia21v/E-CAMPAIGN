@@ -15,7 +15,7 @@ function Forum() {
   };
 
   useEffect(() => {
-    fetchTopics().catch(() => alert("Forumul nu a putut fi incarcat."));
+    fetchTopics().catch(() => alert("Forumul nu a putut fi încărcat."));
   }, []);
 
   const handleChange = (e) => {
@@ -25,7 +25,7 @@ function Forum() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!token) {
-      alert("Trebuie sa fii autentificat pentru a posta.");
+      alert("Trebuie să fii autentificat pentru a posta.");
       return;
     }
 
@@ -44,7 +44,7 @@ function Forum() {
         <div className="page-heading">
           <span className="eyebrow">Comunitate</span>
           <h1>Forum</h1>
-          <p>Spatiu pentru discutii despre campanie, voluntariat si actiuni locale.</p>
+          <p>Spațiu pentru discuții despre campanie, voluntariat și acțiuni locale.</p>
         </div>
 
         <div className="topic-list">
@@ -57,19 +57,19 @@ function Forum() {
               <span>{topic.authorId?.username || "utilizator"}</span>
             </Link>
           ))}
-          {topics.length === 0 && <p>Nu exista discutii inca.</p>}
+          {topics.length === 0 && <p>Nu există discuții încă.</p>}
         </div>
       </section>
 
       <form className="content-panel" onSubmit={handleSubmit}>
-        <h2>Deschide o discutie</h2>
+        <h2>Deschide o discuție</h2>
         <label className="form-label">Titlu</label>
         <input name="title" className="form-control" value={form.title} onChange={handleChange} required />
 
         <label className="form-label">Mesaj</label>
         <textarea name="body" className="form-control" rows="6" value={form.body} onChange={handleChange} required />
 
-        <button className="btn btn-primary w-100 mt-2">Publica</button>
+        <button className="btn btn-primary w-100 mt-2">Publică</button>
       </form>
     </div>
   );

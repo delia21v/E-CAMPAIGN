@@ -35,7 +35,7 @@ function Navbar() {
               <NavLink className="nav-link" to="/campaigns">Campanii</NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/petition">Petitie</NavLink>
+              <NavLink className="nav-link" to="/petition">Petiție</NavLink>
             </li>
             <li className="nav-item">
               <NavLink className="nav-link" to="/volunteer">Voluntariat</NavLink>
@@ -44,7 +44,7 @@ function Navbar() {
               <NavLink className="nav-link" to="/forum">Forum</NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link donate-link" to="/donate">Doneaza</NavLink>
+              <NavLink className="nav-link donate-link" to="/donate">Donează</NavLink>
             </li>
             {isAdmin && (
               <li className="nav-item">
@@ -65,7 +65,7 @@ function Navbar() {
               </>
             ) : (
               <li className="nav-item">
-                <NavLink className="nav-link" to="/login">Login / Inregistrare</NavLink>
+                <NavLink className="nav-link" to="/login">Login / Înregistrare</NavLink>
               </li>
             )}
           </ul>

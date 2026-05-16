@@ -26,7 +26,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
-      return cb(new Error("Fisierul trebuie sa fie o imagine"));
+      return cb(new Error("Fișierul trebuie să fie o imagine"));
     }
     cb(null, true);
   },
@@ -34,7 +34,7 @@ const upload = multer({
 
 function ensureAdmin(req, res) {
   if (!req.user?.isAdmin) {
-    res.status(403).json({ msg: "Doar adminul poate face aceasta actiune" });
+    res.status(403).json({ msg: "Doar adminul poate face această acțiune" });
     return false;
   }
   return true;
@@ -70,7 +70,7 @@ router.get("/", async (req, res) => {
     const campaigns = await Campaign.find().sort({ createdAt: -1 });
     res.json(campaigns);
   } catch (err) {
-    res.status(500).json({ msg: "Eroare la incarcarea campaniilor" });
+    res.status(500).json({ msg: "Eroare la încărcarea campaniilor" });
   }
 });
 
@@ -80,10 +80,10 @@ router.get("/:id", async (req, res) => {
       ? { _id: req.params.id }
       : { slug: req.params.id };
     const campaign = await Campaign.findOne(query);
-    if (!campaign) return res.status(404).json({ msg: "Campanie inexistenta" });
+    if (!campaign) return res.status(404).json({ msg: "Campanie inexistentă" });
     res.json(campaign);
   } catch (err) {
-    res.status(500).json({ msg: "Eroare la incarcarea campaniei" });
+    res.status(500).json({ msg: "Eroare la încărcarea campaniei" });
   }
 });
 
@@ -101,7 +101,7 @@ router.post("/", verifyToken, upload.single("image"), async (req, res) => {
     const campaign = await Campaign.create(payload);
     res.status(201).json(campaign);
   } catch (err) {
-    res.status(400).json({ msg: "Campania nu a putut fi salvata", error: err.message });
+    res.status(400).json({ msg: "Campania nu a putut fi salvată", error: err.message });
   }
 });
 
@@ -114,11 +114,11 @@ router.put("/:id", verifyToken, upload.single("image"), async (req, res) => {
     if (payload.targetAmount !== undefined) payload.targetAmount = Number(payload.targetAmount || 0);
     if (req.file) payload.imageUrl = `/uploads/campaigns/${req.file.filename}`;
     let campaign = await Campaign.findByIdAndUpdate(req.params.id, payload, { new: true });
-    if (!campaign) return res.status(404).json({ msg: "Campanie inexistenta" });
+    if (!campaign) return res.status(404).json({ msg: "Campanie inexistentă" });
     campaign = await closeCampaignIfTargetReached(campaign);
     res.json(campaign);
   } catch (err) {
-    res.status(400).json({ msg: "Campania nu a putut fi actualizata", error: err.message });
+    res.status(400).json({ msg: "Campania nu a putut fi actualizată", error: err.message });
   }
 });
 
@@ -127,9 +127,9 @@ router.delete("/:id", verifyToken, async (req, res) => {
 
   try {
     await Campaign.findByIdAndDelete(req.params.id);
-    res.json({ msg: "Campanie stearsa" });
+    res.json({ msg: "Campanie ștearsă" });
   } catch (err) {
-    res.status(500).json({ msg: "Eroare la stergerea campaniei" });
+    res.status(500).json({ msg: "Eroare la ștergerea campaniei" });
   }
 });
 

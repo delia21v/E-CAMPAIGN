@@ -82,6 +82,18 @@ p {
   border-color: var(--brand);
 }
 
+.hero-actions .btn-outline-primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #ffffff;
+}
+
+.hero-actions .btn-outline-primary:hover {
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
+  color: #ffffff;
+}
+
 .content-panel,
 .campaign-card,
 .feature-card {
@@ -416,6 +428,19 @@ p {
 
 .donation-progress .progress-bar {
   background-color: var(--accent);
+}
+
+.application-details {
+  background: var(--sky);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+
+.application-details span {
+  color: var(--muted);
 }
 
 .topic-list,

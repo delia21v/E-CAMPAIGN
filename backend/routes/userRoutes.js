@@ -13,9 +13,9 @@ router.post("/register", async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
     const user = new User({ username, email, password: hash });
     await user.save();
-    res.json({ msg: "Utilizator inregistrat cu succes" });
+    res.json({ msg: "Utilizator înregistrat cu succes" });
   } catch (err) {
-    res.status(500).json({ msg: "Eroare la inregistrare" });
+    res.status(500).json({ msg: "Eroare la înregistrare" });
   }
 });
 
@@ -26,7 +26,7 @@ router.post("/login", async (req, res) => {
     if (!user) return res.status(400).json({ msg: "Utilizator inexistent" });
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(400).json({ msg: "Parola gresita" });
+    if (!valid) return res.status(400).json({ msg: "Parolă greșită" });
 
     const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET);
     res.json({ token, username: user.username, isAdmin: user.isAdmin });

@@ -23,7 +23,7 @@ function Donate() {
       if (firstActiveCampaign) setForm((current) => ({ ...current, campaignId: firstActiveCampaign._id }));
     };
 
-    fetchCampaigns().catch(() => alert("Campaniile nu au putut fi incarcate."));
+    fetchCampaigns().catch(() => alert("Campaniile nu au putut fi încărcate."));
   }, []);
 
   const handleChange = (e) => {
@@ -44,20 +44,20 @@ function Donate() {
         { headers: { Authorization: token } }
       );
       setReceipt(res.data.donation);
-      alert("Donatie simulata confirmata.");
+      alert("Donație simulată confirmată.");
     } catch (err) {
-      alert(err.response?.data?.msg || "Donatia nu a putut fi salvata.");
+      alert(err.response?.data?.msg || "Donația nu a putut fi salvată.");
     }
   };
 
   return (
     <div className="two-column-layout">
       <section className="content-panel">
-        <span className="eyebrow">Donatii online</span>
-        <h1>Doneaza pentru campanie</h1>
+        <span className="eyebrow">Donații online</span>
+        <h1>Donează pentru campanie</h1>
         <p>
-          Pentru proiect, plata este simulata: se salveaza suma, campania si statusul
-          donatiei, fara date reale de card.
+          Pentru proiect, plata este simulată: se salvează suma, campania și statusul
+          donației, fără date reale de card.
         </p>
         <div className="amount-grid">
           {[25, 50, 100, 250].map((amount) => (
@@ -68,7 +68,7 @@ function Donate() {
         </div>
         {receipt && (
           <div className="alert alert-success mt-3">
-            Donatie confirmata: {receipt.amount} {receipt.currency}, status {receipt.status}.
+            Donație confirmată: {receipt.amount} {receipt.currency}, status {receipt.status}.
           </div>
         )}
       </section>
@@ -87,12 +87,12 @@ function Donate() {
         <label className="form-label">Email</label>
         <input name="email" type="email" className="form-control" value={form.email} onChange={handleChange} required />
 
-        <label className="form-label">Suma</label>
+        <label className="form-label">Sumă</label>
         <input name="amount" type="number" min="1" className="form-control" value={form.amount} onChange={handleChange} required />
 
-        <button className="btn btn-primary w-100 mt-2" disabled={!form.campaignId}>Confirma donatia</button>
+        <button className="btn btn-primary w-100 mt-2" disabled={!form.campaignId}>Confirmă donația</button>
         {activeCampaigns.length === 0 && (
-          <p className="form-help">Nu exista campanii active pentru donatii.</p>
+          <p className="form-help">Nu există campanii active pentru donații.</p>
         )}
       </form>
     </div>

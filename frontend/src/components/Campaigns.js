@@ -27,7 +27,7 @@ function Campaigns() {
         const res = await axios.get(`${API_URL}/api/campaigns`);
         setCampaigns(res.data);
       } catch (err) {
-        alert("Campaniile nu au putut fi incarcate.");
+        alert("Campaniile nu au putut fi încărcate.");
       } finally {
         setLoading(false);
       }
@@ -36,7 +36,7 @@ function Campaigns() {
     fetchCampaigns();
   }, []);
 
-  if (loading) return <p>Se incarca...</p>;
+  if (loading) return <p>Se încarcă...</p>;
 
   const renderCampaignCard = (campaign) => (
     <div className="col-md-6 col-lg-4" key={campaign._id}>
@@ -59,11 +59,11 @@ function Campaigns() {
           <div className="d-flex gap-2 flex-wrap">
             {campaign.status === "active" ? (
               <>
-                <Link className="btn btn-primary btn-sm" to="/petition">Semneaza</Link>
-                <Link className="btn btn-outline-primary btn-sm" to="/donate">Doneaza</Link>
+                <Link className="btn btn-primary btn-sm" to="/petition">Semnează</Link>
+                <Link className="btn btn-outline-primary btn-sm" to="/donate">Donează</Link>
               </>
             ) : (
-              <span className="status-note">Tinta atinsa - campanie incheiata cu succes</span>
+              <span className="status-note">Țintă atinsă - campanie încheiată cu succes</span>
             )}
           </div>
         </div>
@@ -74,26 +74,26 @@ function Campaigns() {
   return (
     <div>
       <div className="page-heading">
-        <span className="eyebrow">Cauze si rezultate</span>
+        <span className="eyebrow">Cauze și rezultate</span>
         <h1>Campanii</h1>
-        <p>Campanii sociale gestionate de organizatie, cu petitii, donatii si implicare civica.</p>
+        <p>Campanii sociale gestionate de organizație, cu petiții, donații și implicare civică.</p>
       </div>
 
       {campaigns.length === 0 ? (
         <div className="content-panel">
-          <h2>Nu exista campanii inca</h2>
-          <p>Intra ca administrator si adauga prima campanie pentru demo.</p>
+          <h2>Nu există campanii încă</h2>
+          <p>Intră ca administrator și adaugă prima campanie pentru demo.</p>
         </div>
       ) : (
         <>
           <section className="campaign-section">
             <div className="section-heading">
-              <span className="eyebrow">In desfasurare</span>
+              <span className="eyebrow">În desfășurare</span>
               <h2>Campanii active</h2>
             </div>
             {activeCampaigns.length === 0 ? (
               <div className="content-panel">
-                <p>Nu exista campanii active in acest moment.</p>
+                <p>Nu există campanii active în acest moment.</p>
               </div>
             ) : (
               <div className="row g-4">
@@ -105,11 +105,11 @@ function Campaigns() {
           <section className="campaign-section">
             <div className="section-heading">
               <span className="eyebrow">Rezultate</span>
-              <h2>Campanii incheiate cu succes</h2>
+              <h2>Campanii încheiate cu succes</h2>
             </div>
             {completedCampaigns.length === 0 ? (
               <div className="content-panel">
-                <p>Campaniile finalizate vor aparea aici dupa atingerea tintei de donatii.</p>
+                <p>Campaniile finalizate vor apărea aici după atingerea țintei de donații.</p>
               </div>
             ) : (
               <div className="row g-4">

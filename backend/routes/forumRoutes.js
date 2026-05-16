@@ -12,7 +12,7 @@ router.get("/topics", async (req, res) => {
       .populate("campaignId", "title");
     res.json(topics);
   } catch (err) {
-    res.status(500).json({ msg: "Eroare la incarcarea forumului" });
+    res.status(500).json({ msg: "Eroare la încărcarea forumului" });
   }
 });
 
@@ -41,7 +41,7 @@ router.get("/topics/:id", async (req, res) => {
 
     res.json({ topic, replies });
   } catch (err) {
-    res.status(500).json({ msg: "Eroare la incarcarea topicului" });
+    res.status(500).json({ msg: "Eroare la încărcarea topicului" });
   }
 });
 
@@ -54,7 +54,7 @@ router.post("/topics/:id/replies", verifyToken, async (req, res) => {
     });
     res.status(201).json(reply);
   } catch (err) {
-    res.status(400).json({ msg: "Raspunsul nu a putut fi salvat", error: err.message });
+    res.status(400).json({ msg: "Răspunsul nu a putut fi salvat", error: err.message });
   }
 });
 
@@ -64,9 +64,9 @@ router.delete("/topics/:id", verifyToken, async (req, res) => {
   try {
     await ForumReply.deleteMany({ topicId: req.params.id });
     await ForumTopic.findByIdAndDelete(req.params.id);
-    res.json({ msg: "Topic sters" });
+    res.json({ msg: "Topic șters" });
   } catch (err) {
-    res.status(500).json({ msg: "Topic-ul nu a putut fi sters" });
+    res.status(500).json({ msg: "Topic-ul nu a putut fi șters" });
   }
 });
 
@@ -75,9 +75,9 @@ router.delete("/replies/:id", verifyToken, async (req, res) => {
 
   try {
     await ForumReply.findByIdAndDelete(req.params.id);
-    res.json({ msg: "Raspuns sters" });
+    res.json({ msg: "Răspuns șters" });
   } catch (err) {
-    res.status(500).json({ msg: "Raspunsul nu a putut fi sters" });
+    res.status(500).json({ msg: "Răspunsul nu a putut fi șters" });
   }
 });
 

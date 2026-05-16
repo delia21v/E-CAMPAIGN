@@ -18,13 +18,13 @@ function ForumTopic() {
   }, [id]);
 
   useEffect(() => {
-    fetchTopic().catch(() => alert("Discutia nu a putut fi incarcata."));
+    fetchTopic().catch(() => alert("Discuția nu a putut fi încărcată."));
   }, [fetchTopic]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!token) {
-      alert("Trebuie sa fii autentificat pentru a raspunde.");
+      alert("Trebuie să fii autentificat pentru a răspunde.");
       return;
     }
 
@@ -37,37 +37,37 @@ function ForumTopic() {
       setBody("");
       fetchTopic();
     } catch (err) {
-      alert("Raspunsul nu a putut fi salvat.");
+      alert("Răspunsul nu a putut fi salvat.");
     }
   };
 
-  if (!topic) return <p>Se incarca...</p>;
+  if (!topic) return <p>Se încarcă...</p>;
 
   return (
     <div>
-      <Link to="/forum" className="small-link">Inapoi la forum</Link>
+      <Link to="/forum" className="small-link">Înapoi la forum</Link>
       <article className="content-panel mt-3">
-        <span className="eyebrow">Discutie</span>
+        <span className="eyebrow">Discuție</span>
         <h1>{topic.title}</h1>
         <p>{topic.body}</p>
         <span className="meta-line">Autor: {topic.authorId?.username || "utilizator"}</span>
       </article>
 
       <section className="reply-list">
-        <h2>Raspunsuri</h2>
+        <h2>Răspunsuri</h2>
         {replies.map((reply) => (
           <div className="reply-item" key={reply._id}>
             <p>{reply.body}</p>
             <span>{reply.authorId?.username || "utilizator"}</span>
           </div>
         ))}
-        {replies.length === 0 && <p>Nu exista raspunsuri inca.</p>}
+        {replies.length === 0 && <p>Nu există răspunsuri încă.</p>}
       </section>
 
       <form className="content-panel mt-4" onSubmit={handleSubmit}>
-        <label className="form-label">Raspunsul tau</label>
+        <label className="form-label">Răspunsul tău</label>
         <textarea className="form-control" rows="4" value={body} onChange={(e) => setBody(e.target.value)} required />
-        <button className="btn btn-primary mt-2">Trimite raspunsul</button>
+        <button className="btn btn-primary mt-2">Trimite răspunsul</button>
       </form>
     </div>
   );
