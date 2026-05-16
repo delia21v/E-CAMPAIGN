@@ -22,26 +22,26 @@ function Home() {
       <section className="row g-4 mt-4">
         <div className="col-md-3">
           <Link className="feature-card feature-link" to="/petition">
-            <h3>Petiție</h3>
-            <p>Utilizatorii autentificați susțin cauza prin semnături salvate în baza de date.</p>
+            <h3>Petiții</h3>
+            <p>Strângere de susținere publică prin semnături online.</p>
           </Link>
         </div>
         <div className="col-md-3">
           <Link className="feature-card feature-link" to="/volunteer">
             <h3>Voluntariat</h3>
-            <p>Cererile de adeziune sunt trimise online și aprobate de administrator.</p>
+            <p>Înscriere voluntari și urmărirea răspunsului.</p>
           </Link>
         </div>
         <div className="col-md-3">
           <Link className="feature-card feature-link" to="/donate">
             <h3>Donații</h3>
-            <p>Flux de donație simulat, suficient pentru demo și sigur pentru proiect.</p>
+            <p>Centralizarea sprijinului financiar și progresului către țintă.</p>
           </Link>
         </div>
         <div className="col-md-3">
           <Link className="feature-card feature-link" to="/forum">
             <h3>Forum</h3>
-            <p>Comunitatea deschide discuții, iar adminul poate modera conținutul.</p>
+            <p>Spațiu pentru idei, întrebări și propuneri.</p>
           </Link>
         </div>
       </section>
