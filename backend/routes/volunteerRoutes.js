@@ -30,6 +30,19 @@ router.get("/me", verifyToken, async (req, res) => {
   }
 });
 
+router.get("/active", verifyToken, async (req, res) => {
+  if (!req.user.isAdmin) return res.status(403).json({ msg: "Doar adminul poate vedea voluntarii activi" });
+
+  try {
+    const applications = await VolunteerApplication.find({ status: "approved" })
+      .sort({ reviewedAt: -1, createdAt: -1 })
+      .populate("userId", "username");
+    res.json(applications);
+  } catch (err) {
+    res.status(500).json({ msg: "Eroare la încărcarea voluntarilor activi" });
+  }
+});
+
 router.get("/", verifyToken, async (req, res) => {
   if (!req.user.isAdmin) return res.status(403).json({ msg: "Doar adminul poate vedea cererile" });
 

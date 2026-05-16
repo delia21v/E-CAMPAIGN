@@ -44,6 +44,7 @@ function AdminPanel() {
   const [selectedDonationCampaignId, setSelectedDonationCampaignId] = useState("");
   const [donationReport, setDonationReport] = useState(emptyDonationReport);
   const [volunteers, setVolunteers] = useState([]);
+  const [activeVolunteers, setActiveVolunteers] = useState([]);
   const [topics, setTopics] = useState([]);
   const [campaignImage, setCampaignImage] = useState(null);
   const [fileInputKey, setFileInputKey] = useState(0);
@@ -93,6 +94,11 @@ function AdminPanel() {
     setVolunteers(res.data);
   };
 
+  const fetchActiveVolunteers = async () => {
+    const res = await axios.get(`${API_URL}/api/volunteers/active`, authConfig);
+    setActiveVolunteers(res.data);
+  };
+
   const fetchTopics = async () => {
     const res = await axios.get(`${API_URL}/api/forum/topics`);
     setTopics(res.data);
@@ -113,6 +119,7 @@ function AdminPanel() {
         loadStep("campanii", fetchCampaigns),
         loadStep("donații", () => fetchCampaignDonationStats(selectedDonationCampaignId)),
         loadStep("voluntari", fetchVolunteers),
+        loadStep("voluntari activi", fetchActiveVolunteers),
         loadStep("forum", fetchTopics),
       ]);
     } catch (err) {
@@ -216,7 +223,7 @@ function AdminPanel() {
 
   const updateVolunteerStatus = async (id, status) => {
     await axios.patch(`${API_URL}/api/volunteers/${id}/status`, { status }, authConfig);
-    fetchVolunteers();
+    await Promise.all([fetchVolunteers(), fetchActiveVolunteers()]);
   };
 
   const deleteTopic = async (id) => {
@@ -403,25 +410,44 @@ function AdminPanel() {
       )}
 
       {activeTab === "volunteers" && (
-        <section className="content-panel">
-          <h2>Cereri voluntariat în așteptare</h2>
-          <div className="admin-list">
-            {volunteers.map((volunteer) => (
-              <div className="admin-row" key={volunteer._id}>
-                <div>
-                  <strong>{volunteer.fullName}</strong>
-                  <span>{volunteer.email} - {volunteer.city} - status: {getVolunteerStatusLabel(volunteer.status)}</span>
-                  <p>{volunteer.motivation}</p>
+        <div className="admin-section-stack">
+          <section className="content-panel">
+            <h2>Cereri voluntariat în așteptare</h2>
+            <div className="admin-list">
+              {volunteers.map((volunteer) => (
+                <div className="admin-row" key={volunteer._id}>
+                  <div>
+                    <strong>{volunteer.fullName}</strong>
+                    <span>{volunteer.email} - {volunteer.city} - status: {getVolunteerStatusLabel(volunteer.status)}</span>
+                    <p>{volunteer.motivation}</p>
+                  </div>
+                  <div className="button-stack">
+                    <button className="btn btn-sm btn-success" onClick={() => updateVolunteerStatus(volunteer._id, "approved")}>Aprobă</button>
+                    <button className="btn btn-sm btn-outline-danger" onClick={() => updateVolunteerStatus(volunteer._id, "rejected")}>Respinge</button>
+                  </div>
                 </div>
-                <div className="button-stack">
-                  <button className="btn btn-sm btn-success" onClick={() => updateVolunteerStatus(volunteer._id, "approved")}>Aprobă</button>
-                  <button className="btn btn-sm btn-outline-danger" onClick={() => updateVolunteerStatus(volunteer._id, "rejected")}>Respinge</button>
+              ))}
+              {volunteers.length === 0 && <p>Nu există cereri în așteptare.</p>}
+            </div>
+          </section>
+
+          <section className="content-panel">
+            <h2>Voluntari activi</h2>
+            <div className="admin-list">
+              {activeVolunteers.map((volunteer) => (
+                <div className="admin-row" key={volunteer._id}>
+                  <div>
+                    <strong>{volunteer.fullName}</strong>
+                    <span>{volunteer.email} - {volunteer.city} - {volunteer.phone}</span>
+                    <span>Vârstă: {volunteer.age} - status: {getVolunteerStatusLabel(volunteer.status)}</span>
+                    <p>{volunteer.motivation}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-            {volunteers.length === 0 && <p>Nu există cereri în așteptare.</p>}
-          </div>
-        </section>
+              ))}
+              {activeVolunteers.length === 0 && <p>Nu există voluntari activi.</p>}
+            </div>
+          </section>
+        </div>
       )}
 
       {activeTab === "forum" && (

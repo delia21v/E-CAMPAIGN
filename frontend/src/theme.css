@@ -362,6 +362,11 @@ p {
   gap: 24px;
 }
 
+.admin-section-stack {
+  display: grid;
+  gap: 20px;
+}
+
 .admin-list {
   display: grid;
   gap: 12px;

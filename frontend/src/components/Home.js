@@ -13,7 +13,7 @@ function Home() {
             comunitare dedicate unei campanii de sprijin pentru copii vulnerabili.
           </p>
           <div className="hero-actions">
-            <Link className="btn btn-primary" to="/petition">Semnează petiția</Link>
+            <Link className="btn btn-primary" to="/petition">Semnează petițiile</Link>
             <Link className="btn btn-outline-primary" to="/campaigns">Vezi campaniile</Link>
           </div>
         </div>

@@ -19,13 +19,13 @@ Pagini publice:
 - Login/Register;
 - Admin.
 
-## Pasul 2 - Curata conceptul fata de tema veche
+## Pasul 2 - Definitivează conceptul aplicației
 
-Nu trebuie sa stergi proiectul vechi imediat. Poti lucra incremental:
+Lucrează incremental și păstrează structura tehnică deja funcțională:
 
 1. Pastreaza `Login`, `Register`, `PrivateRoute`, `AdminRoute`, `auth.js`.
-2. Inlocuieste textele despre turism cu texte despre campanii ONG.
-3. Inlocuieste componentele turistice:
+2. Folosește texte despre campanii ONG, petiții, donații și voluntariat.
+3. Adaptează componentele publice:
    - `Attractions.js` -> `Campaigns.js`;
    - `Gallery.js` -> `ImpactStories.js`;
    - `Map.js` poate fi eliminat sau transformat in `Branches.js`, daca vrei filiale/locatii.

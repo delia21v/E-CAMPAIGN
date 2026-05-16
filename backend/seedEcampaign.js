@@ -73,7 +73,7 @@ async function seed() {
       userId: demoUser._id,
       fullName: "Andrei Popescu",
       email: "andrei@example.com",
-      city: "Ramnicu Valcea",
+      city: "București",
       message: "Sustin accesul egal la educatie.",
     },
     {
@@ -107,7 +107,7 @@ async function seed() {
       fullName: "Andrei Popescu",
       email: "andrei@example.com",
       phone: "0712345678",
-      city: "Ramnicu Valcea",
+      city: "Iași",
       age: 21,
       motivation: "Vreau sa ajut la organizarea atelierelor pentru copii.",
       status: "pending",
