@@ -13,6 +13,8 @@ function AdminPanel() {
   const [donationStats, setDonationStats] = useState({ totalAmount: 0, totalCount: 0 });
   const [volunteers, setVolunteers] = useState([]);
   const [topics, setTopics] = useState([]);
+  const [campaignImage, setCampaignImage] = useState(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
   const [campaignForm, setCampaignForm] = useState({
     title: "",
     summary: "",
@@ -76,14 +78,26 @@ function AdminPanel() {
     setCampaignForm({ ...campaignForm, [e.target.name]: e.target.value });
   };
 
+  const handleCampaignImageChange = (e) => {
+    setCampaignImage(e.target.files[0] || null);
+  };
+
   const handleAddCampaign = async (e) => {
     e.preventDefault();
 
     try {
+      const formData = new FormData();
+      Object.entries(campaignForm).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      if (campaignImage) {
+        formData.append("image", campaignImage);
+      }
+
       await axios.post(
         `${API_URL}/api/campaigns`,
-        { ...campaignForm, targetAmount: Number(campaignForm.targetAmount) },
-        authConfig
+        formData,
+        { headers: { Authorization: token } }
       );
       setCampaignForm({
         title: "",
@@ -94,6 +108,8 @@ function AdminPanel() {
         targetAmount: 0,
         status: "active",
       });
+      setCampaignImage(null);
+      setFileInputKey((current) => current + 1);
       fetchCampaigns();
     } catch (err) {
       alert(err.response?.data?.msg || "Campania nu a putut fi adaugata.");
@@ -166,6 +182,15 @@ function AdminPanel() {
             <input name="goal" className="form-control" value={campaignForm.goal} onChange={handleCampaignChange} />
             <label className="form-label">Tinta donatii</label>
             <input name="targetAmount" type="number" className="form-control" value={campaignForm.targetAmount} onChange={handleCampaignChange} />
+            <label className="form-label">Imagine campanie</label>
+            <input
+              key={fileInputKey}
+              name="image"
+              type="file"
+              accept="image/*"
+              className="form-control"
+              onChange={handleCampaignImageChange}
+            />
             <button className="btn btn-primary w-100 mt-2">Salveaza campania</button>
           </form>
 
@@ -176,7 +201,7 @@ function AdminPanel() {
                 <div className="admin-row" key={campaign._id}>
                   <div>
                     <strong>{campaign.title}</strong>
-                    <span>{campaign.status} - {campaign.category}</span>
+                    <span>{campaign.status} - {campaign.category}{campaign.imageUrl ? " - imagine adaugata" : ""}</span>
                   </div>
                   <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteCampaign(campaign._id)}>
                     Sterge

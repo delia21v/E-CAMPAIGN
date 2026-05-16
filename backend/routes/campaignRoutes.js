@@ -1,8 +1,35 @@
 const express = require("express");
+const fs = require("fs");
 const mongoose = require("mongoose");
+const multer = require("multer");
+const path = require("path");
 const router = express.Router();
 const Campaign = require("../models/Campaign");
 const verifyToken = require("../middleware/auth");
+
+const campaignUploadDir = path.join(__dirname, "../uploads/campaigns");
+fs.mkdirSync(campaignUploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, campaignUploadDir);
+  },
+  filename: (req, file, cb) => {
+    const safeExt = path.extname(file.originalname).toLowerCase();
+    cb(null, `campaign-${Date.now()}-${Math.round(Math.random() * 1e9)}${safeExt}`);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Fisierul trebuie sa fie o imagine"));
+    }
+    cb(null, true);
+  },
+});
 
 function ensureAdmin(req, res) {
   if (!req.user?.isAdmin) {
@@ -43,13 +70,15 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", verifyToken, upload.single("image"), async (req, res) => {
   if (!ensureAdmin(req, res)) return;
 
   try {
     const payload = {
       ...req.body,
       slug: req.body.slug || makeSlug(req.body.title || ""),
+      targetAmount: Number(req.body.targetAmount || 0),
+      imageUrl: req.file ? `/uploads/campaigns/${req.file.filename}` : req.body.imageUrl || "",
       createdBy: req.user.id,
     };
     const campaign = await Campaign.create(payload);
@@ -59,12 +88,14 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
-router.put("/:id", verifyToken, async (req, res) => {
+router.put("/:id", verifyToken, upload.single("image"), async (req, res) => {
   if (!ensureAdmin(req, res)) return;
 
   try {
     const payload = { ...req.body };
     if (payload.title && !payload.slug) payload.slug = makeSlug(payload.title);
+    if (payload.targetAmount !== undefined) payload.targetAmount = Number(payload.targetAmount || 0);
+    if (req.file) payload.imageUrl = `/uploads/campaigns/${req.file.filename}`;
     const campaign = await Campaign.findByIdAndUpdate(req.params.id, payload, { new: true });
     if (!campaign) return res.status(404).json({ msg: "Campanie inexistenta" });
     res.json(campaign);

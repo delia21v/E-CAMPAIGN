@@ -221,9 +221,15 @@ p {
 .campaign-card-media {
   align-items: end;
   background: linear-gradient(135deg, var(--sky), var(--accent-soft));
+  background-position: center;
+  background-size: cover;
   display: flex;
   height: 132px;
   padding: 16px;
+}
+
+.campaign-card-media.has-image {
+  min-height: 168px;
 }
 
 .campaign-card-media span,

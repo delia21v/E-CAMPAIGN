@@ -8,6 +8,12 @@ function Campaigns() {
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return "";
+    if (imageUrl.startsWith("http")) return imageUrl;
+    return `${API_URL}${imageUrl}`;
+  };
+
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
@@ -43,7 +49,14 @@ function Campaigns() {
           {campaigns.map((campaign) => (
             <div className="col-md-6 col-lg-4" key={campaign._id}>
               <article className="campaign-card">
-                <div className="campaign-card-media">
+                <div
+                  className={`campaign-card-media${campaign.imageUrl ? " has-image" : ""}`}
+                  style={
+                    campaign.imageUrl
+                      ? { backgroundImage: `linear-gradient(180deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.42)), url(${getImageUrl(campaign.imageUrl)})` }
+                      : undefined
+                  }
+                >
                   <span>{campaign.category || "social"}</span>
                 </div>
                 <div className="campaign-card-body">
