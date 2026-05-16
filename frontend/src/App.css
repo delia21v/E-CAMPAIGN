@@ -1,0 +1,240 @@
+/* Font principal */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+/* Navbar personalizat */
+.navbar {
+  background: linear-gradient(90deg, #0d3b66, #faa916); /* albastru închis spre galben */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  transition: background 0.3s ease;
+}
+
+.navbar:hover {
+  background: linear-gradient(90deg, #faa916, #0d3b66);
+}
+
+/* Link-urile navbar */
+.nav-link {
+  color: #fff !important;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ffdd57 !important; /* galben pal */
+}
+
+/* Linie sub link la hover și activ */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  background-color: #ffdd57;
+  left: 0;
+  bottom: 0;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* Butonul logout */
+.btn-outline-light {
+  border-color: #ffdd57;
+  color: #ffdd57;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-outline-light:hover {
+  background-color: #ffdd57;
+  color: #0d3b66;
+  border-color: #ffdd57;
+}
+
+/* Un efect subtil când dai click pe link */
+.nav-link:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #e0f7fa, #80deea);
+  margin: 0;
+  color: #37474f; /* gri închis */
+}
+
+/* Container principal */
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 20px;
+}
+
+/* Titluri */
+h1, h2, h3, h4, h5 {
+  color: #00796b; /* verde smarald */
+  font-weight: 700;
+}
+
+/* Paragraf */
+p {
+  line-height: 1.6;
+  color: #455a64; /* gri mediu */
+}
+
+/* Butoane principale */
+.btn {
+  background-color: #00796b;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #004d40;
+}
+
+/* Navbar personalizat */
+.navbar {
+  background: linear-gradient(90deg, #004d40, #00796b);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  transition: background 0.3s ease;
+}
+
+.navbar:hover {
+  background: linear-gradient(90deg, #00796b, #004d40);
+}
+
+.nav-link {
+  color: #e0f2f1 !important;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #a7ffeb !important;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  background-color: #a7ffeb;
+  left: 0;
+  bottom: 0;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* Card atracții */
+.card {
+  border-radius: 12px;
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  background-color: #ffffffcc; /* alb translucid */
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+}
+
+.card-img-top {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  height: 180px;
+  object-fit: cover;
+}
+
+/* Formular */
+input, textarea {
+  padding: 10px;
+  border: 1px solid #00796b;
+  border-radius: 6px;
+  width: 100%;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #004d40;
+  box-shadow: 0 0 5px #004d40;
+}
+
+/* Footer simplu */
+footer {
+  background-color: #004d40;
+  color: #a7ffeb;
+  padding: 20px 0;
+  text-align: center;
+  margin-top: 40px;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-img-top {
+    height: 140px;
+  }
+}
+
+.nav-tabs .nav-link {
+  font-weight: 600;
+  color: #004d40 !important;           /* text verde închis */
+  text-transform: uppercase;
+  background-color: #a7ffeb;            /* verde deschis, solid, vibrant */
+  border-radius: 8px 8px 0 0;
+  margin-right: 4px;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: #00796b;            /* verde smarald închis */
+  color: #ffffff !important;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #004d40;            /* verde foarte închis */
+  color: #ffffff !important;
+  border-bottom: 2px solid #a7ffeb;
+}
+
+.custom-tab-button {
+  font-weight: 700;
+  background-color: #00b894 !important;  /* verde strident */
+  color: white !important;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
+}
+
+.custom-tab-button:hover {
+  background-color: #019875 !important; /* verde mai închis la hover */
+  color: white !important;
+}
+
+.custom-tab-button.active {
+  background-color: #0984e3 !important; /* albastru puternic când activ */
+  color: white !important;
+  border-bottom: 3px solid #fdcb6e !important; /* galben evidențiat */
+}
