@@ -15,12 +15,14 @@ function Petition() {
   });
 
   const token = localStorage.getItem("token");
+  const activeCampaigns = campaigns.filter((campaign) => campaign.status === "active");
 
   useEffect(() => {
     const fetchCampaigns = async () => {
       const res = await axios.get(`${API_URL}/api/campaigns`);
       setCampaigns(res.data);
-      if (res.data[0]) setCampaignId(res.data[0]._id);
+      const firstActiveCampaign = res.data.find((campaign) => campaign.status === "active");
+      if (firstActiveCampaign) setCampaignId(firstActiveCampaign._id);
     };
 
     fetchCampaigns().catch(() => alert("Campaniile nu au putut fi incarcate."));
@@ -74,10 +76,13 @@ function Petition() {
       <form className="content-panel" onSubmit={handleSubmit}>
         <label className="form-label">Campanie</label>
         <select className="form-select mb-3" value={campaignId} onChange={(e) => setCampaignId(e.target.value)} required>
-          {campaigns.map((campaign) => (
+          {activeCampaigns.map((campaign) => (
             <option value={campaign._id} key={campaign._id}>{campaign.title}</option>
           ))}
         </select>
+        {activeCampaigns.length === 0 && (
+          <p className="form-help">Nu exista campanii active pentru petitie.</p>
+        )}
 
         <label className="form-label">Nume complet</label>
         <input name="fullName" className="form-control" value={form.fullName} onChange={handleChange} required />

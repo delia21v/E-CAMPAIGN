@@ -13,12 +13,14 @@ function Donate() {
   });
   const [receipt, setReceipt] = useState(null);
   const token = localStorage.getItem("token");
+  const activeCampaigns = campaigns.filter((campaign) => campaign.status === "active");
 
   useEffect(() => {
     const fetchCampaigns = async () => {
       const res = await axios.get(`${API_URL}/api/campaigns`);
       setCampaigns(res.data);
-      if (res.data[0]) setForm((current) => ({ ...current, campaignId: res.data[0]._id }));
+      const firstActiveCampaign = res.data.find((campaign) => campaign.status === "active");
+      if (firstActiveCampaign) setForm((current) => ({ ...current, campaignId: firstActiveCampaign._id }));
     };
 
     fetchCampaigns().catch(() => alert("Campaniile nu au putut fi incarcate."));
@@ -41,7 +43,7 @@ function Donate() {
         { ...form, amount: Number(form.amount) },
         { headers: { Authorization: token } }
       );
-      setReceipt(res.data);
+      setReceipt(res.data.donation);
       alert("Donatie simulata confirmata.");
     } catch (err) {
       alert(err.response?.data?.msg || "Donatia nu a putut fi salvata.");
@@ -74,7 +76,7 @@ function Donate() {
       <form className="content-panel" onSubmit={handleSubmit}>
         <label className="form-label">Campanie</label>
         <select name="campaignId" className="form-select mb-3" value={form.campaignId} onChange={handleChange} required>
-          {campaigns.map((campaign) => (
+          {activeCampaigns.map((campaign) => (
             <option value={campaign._id} key={campaign._id}>{campaign.title}</option>
           ))}
         </select>
@@ -89,6 +91,9 @@ function Donate() {
         <input name="amount" type="number" min="1" className="form-control" value={form.amount} onChange={handleChange} required />
 
         <button className="btn btn-primary w-100 mt-2" disabled={!form.campaignId}>Confirma donatia</button>
+        {activeCampaigns.length === 0 && (
+          <p className="form-help">Nu exista campanii active pentru donatii.</p>
+        )}
       </form>
     </div>
   );

@@ -259,6 +259,12 @@ p {
   font-weight: 700;
 }
 
+.status-note {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
 .signature-counter {
   background: var(--accent-soft);
   border-radius: 8px;
@@ -365,6 +371,39 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.donation-progress-panel {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.donation-progress-header {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.donation-progress-header strong {
+  color: var(--brand-dark);
+  display: block;
+  font-size: 1.5rem;
+}
+
+.donation-progress-header span {
+  color: var(--muted);
+  display: block;
+}
+
+.donation-progress {
+  height: 16px;
+}
+
+.donation-progress .progress-bar {
+  background-color: var(--accent);
 }
 
 .topic-list,

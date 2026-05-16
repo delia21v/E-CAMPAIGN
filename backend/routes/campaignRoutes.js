@@ -5,6 +5,7 @@ const multer = require("multer");
 const path = require("path");
 const router = express.Router();
 const Campaign = require("../models/Campaign");
+const Donation = require("../models/Donation");
 const verifyToken = require("../middleware/auth");
 
 const campaignUploadDir = path.join(__dirname, "../uploads/campaigns");
@@ -46,6 +47,22 @@ function makeSlug(title) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+}
+
+async function closeCampaignIfTargetReached(campaign) {
+  if (!campaign?.targetAmount || campaign.targetAmount <= 0) return campaign;
+
+  const [stats] = await Donation.aggregate([
+    { $match: { campaignId: campaign._id, status: "confirmed" } },
+    { $group: { _id: "$campaignId", totalAmount: { $sum: "$amount" } } },
+  ]);
+
+  if ((stats?.totalAmount || 0) >= campaign.targetAmount && campaign.status === "active") {
+    campaign.status = "inactive";
+    await campaign.save();
+  }
+
+  return campaign;
 }
 
 router.get("/", async (req, res) => {
@@ -96,8 +113,9 @@ router.put("/:id", verifyToken, upload.single("image"), async (req, res) => {
     if (payload.title && !payload.slug) payload.slug = makeSlug(payload.title);
     if (payload.targetAmount !== undefined) payload.targetAmount = Number(payload.targetAmount || 0);
     if (req.file) payload.imageUrl = `/uploads/campaigns/${req.file.filename}`;
-    const campaign = await Campaign.findByIdAndUpdate(req.params.id, payload, { new: true });
+    let campaign = await Campaign.findByIdAndUpdate(req.params.id, payload, { new: true });
     if (!campaign) return res.status(404).json({ msg: "Campanie inexistenta" });
+    campaign = await closeCampaignIfTargetReached(campaign);
     res.json(campaign);
   } catch (err) {
     res.status(400).json({ msg: "Campania nu a putut fi actualizata", error: err.message });

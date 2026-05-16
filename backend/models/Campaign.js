@@ -9,7 +9,7 @@ const campaignSchema = new mongoose.Schema(
     category: { type: String, default: "social", trim: true },
     goal: { type: String, default: "", trim: true },
     imageUrl: { type: String, default: "" },
-    status: { type: String, enum: ["active", "closed"], default: "active" },
+    status: { type: String, enum: ["active", "inactive", "closed"], default: "active" },
     targetAmount: { type: Number, default: 0 },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },

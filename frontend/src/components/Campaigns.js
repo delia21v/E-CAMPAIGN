@@ -4,6 +4,11 @@ import { Link } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_API_URL || "";
 
+function getStatusLabel(status) {
+  if (status === "active") return "activ";
+  return "inactiv";
+}
+
 function Campaigns() {
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,13 +65,19 @@ function Campaigns() {
                   <span>{campaign.category || "social"}</span>
                 </div>
                 <div className="campaign-card-body">
-                  <div className="status-pill">{campaign.status}</div>
+                  <div className="status-pill">{getStatusLabel(campaign.status)}</div>
                   <h2>{campaign.title}</h2>
                   <p>{campaign.summary}</p>
                   <p className="goal-line">{campaign.goal}</p>
                   <div className="d-flex gap-2 flex-wrap">
-                    <Link className="btn btn-primary btn-sm" to="/petition">Semneaza</Link>
-                    <Link className="btn btn-outline-primary btn-sm" to="/donate">Doneaza</Link>
+                    {campaign.status === "active" ? (
+                      <>
+                        <Link className="btn btn-primary btn-sm" to="/petition">Semneaza</Link>
+                        <Link className="btn btn-outline-primary btn-sm" to="/donate">Doneaza</Link>
+                      </>
+                    ) : (
+                      <span className="status-note">Tinta atinsa - campanie inactiva</span>
+                    )}
                   </div>
                 </div>
               </article>

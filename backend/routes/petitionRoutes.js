@@ -1,10 +1,17 @@
 const express = require("express");
 const router = express.Router();
+const Campaign = require("../models/Campaign");
 const PetitionSignature = require("../models/PetitionSignature");
 const verifyToken = require("../middleware/auth");
 
 router.post("/sign", verifyToken, async (req, res) => {
   try {
+    const campaign = await Campaign.findById(req.body.campaignId);
+    if (!campaign) return res.status(404).json({ msg: "Campanie inexistenta" });
+    if (campaign.status === "inactive" || campaign.status === "closed") {
+      return res.status(400).json({ msg: "Campania este inactiva si petitia este inchisa" });
+    }
+
     const signature = await PetitionSignature.create({
       ...req.body,
       userId: req.user.id,

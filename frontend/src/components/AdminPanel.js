@@ -13,6 +13,21 @@ function getRequestErrorMessage(err) {
   return err.message || "eroare necunoscuta";
 }
 
+function getCampaignStatusLabel(status) {
+  if (status === "active") return "activ";
+  return "inactiv";
+}
+
+const emptyDonationReport = {
+  campaign: null,
+  totalAmount: 0,
+  totalCount: 0,
+  targetAmount: 0,
+  percentage: 0,
+  isTargetReached: false,
+  donations: [],
+};
+
 function AdminPanel() {
   const token = localStorage.getItem("token");
   const [activeTab, setActiveTab] = useState("campaigns");
@@ -20,8 +35,8 @@ function AdminPanel() {
   const [campaigns, setCampaigns] = useState([]);
   const [selectedCampaignId, setSelectedCampaignId] = useState("");
   const [signatures, setSignatures] = useState([]);
-  const [donations, setDonations] = useState([]);
-  const [donationStats, setDonationStats] = useState({ totalAmount: 0, totalCount: 0 });
+  const [selectedDonationCampaignId, setSelectedDonationCampaignId] = useState("");
+  const [donationReport, setDonationReport] = useState(emptyDonationReport);
   const [volunteers, setVolunteers] = useState([]);
   const [topics, setTopics] = useState([]);
   const [campaignImage, setCampaignImage] = useState(null);
@@ -45,6 +60,10 @@ function AdminPanel() {
       setSelectedCampaignId(res.data[0]._id);
       fetchSignatures(res.data[0]._id);
     }
+    if (res.data[0] && !selectedDonationCampaignId) {
+      setSelectedDonationCampaignId(res.data[0]._id);
+      fetchCampaignDonationStats(res.data[0]._id);
+    }
   };
 
   const fetchSignatures = async (campaignId) => {
@@ -53,13 +72,14 @@ function AdminPanel() {
     setSignatures(res.data);
   };
 
-  const fetchDonations = async () => {
-    const [donationRes, statsRes] = await Promise.all([
-      axios.get(`${API_URL}/api/donations`, authConfig),
-      axios.get(`${API_URL}/api/donations/stats`, authConfig),
-    ]);
-    setDonations(donationRes.data);
-    setDonationStats(statsRes.data);
+  const fetchCampaignDonationStats = async (campaignId) => {
+    if (!campaignId) {
+      setDonationReport(emptyDonationReport);
+      return;
+    }
+
+    const res = await axios.get(`${API_URL}/api/donations/stats/by-campaign/${campaignId}`, authConfig);
+    setDonationReport(res.data);
   };
 
   const fetchVolunteers = async () => {
@@ -85,7 +105,7 @@ function AdminPanel() {
     try {
       await Promise.all([
         loadStep("campanii", fetchCampaigns),
-        loadStep("donatii", fetchDonations),
+        loadStep("donatii", () => fetchCampaignDonationStats(selectedDonationCampaignId)),
         loadStep("voluntari", fetchVolunteers),
         loadStep("forum", fetchTopics),
       ]);
@@ -132,7 +152,7 @@ function AdminPanel() {
       category: campaign.category || "social",
       goal: campaign.goal || "",
       targetAmount: campaign.targetAmount || 0,
-      status: campaign.status || "active",
+      status: campaign.status === "closed" ? "inactive" : campaign.status || "active",
     });
     setCampaignImage(null);
     setFileInputKey((current) => current + 1);
@@ -176,6 +196,11 @@ function AdminPanel() {
     if (!window.confirm("Stergi aceasta campanie?")) return;
     await axios.delete(`${API_URL}/api/campaigns/${id}`, authConfig);
     fetchCampaigns();
+  };
+
+  const handleDonationCampaignChange = (id) => {
+    setSelectedDonationCampaignId(id);
+    fetchCampaignDonationStats(id).catch(() => alert("Statisticile donatiilor nu au putut fi incarcate."));
   };
 
   const handleSelectedCampaign = (id) => {
@@ -236,8 +261,8 @@ function AdminPanel() {
             <input name="category" className="form-control" value={campaignForm.category} onChange={handleCampaignChange} />
             <label className="form-label">Status</label>
             <select name="status" className="form-select" value={campaignForm.status} onChange={handleCampaignChange}>
-              <option value="active">active</option>
-              <option value="closed">closed</option>
+              <option value="active">activ</option>
+              <option value="inactive">inactiv</option>
             </select>
             <label className="form-label">Obiectiv</label>
             <input name="goal" className="form-control" value={campaignForm.goal} onChange={handleCampaignChange} />
@@ -276,7 +301,7 @@ function AdminPanel() {
                 <div className="admin-row" key={campaign._id}>
                   <div>
                     <strong>{campaign.title}</strong>
-                    <span>{campaign.status} - {campaign.category}{campaign.imageUrl ? " - imagine adaugata" : ""}</span>
+                    <span>{getCampaignStatusLabel(campaign.status)} - {campaign.category}{campaign.imageUrl ? " - imagine adaugata" : ""}</span>
                   </div>
                   <div className="button-stack">
                     <button className="btn btn-sm btn-outline-primary" onClick={() => handleEditCampaign(campaign)}>
@@ -330,27 +355,43 @@ function AdminPanel() {
 
       {activeTab === "donations" && (
         <section className="content-panel">
-          <h2>Donatii simulate</h2>
-          <div className="impact-grid compact">
-            <div className="impact-item">
-              <strong>{donationStats.totalAmount || 0} RON</strong>
-              <span>total confirmat</span>
+          <h2>Donatii pe campanie</h2>
+          <label className="form-label">Alege campania</label>
+          <select className="form-select mb-3" value={selectedDonationCampaignId} onChange={(e) => handleDonationCampaignChange(e.target.value)}>
+            {campaigns.map((campaign) => (
+              <option value={campaign._id} key={campaign._id}>{campaign.title}</option>
+            ))}
+          </select>
+
+          <div className="donation-progress-panel">
+            <div className="donation-progress-header">
+              <div>
+                <strong>{donationReport.totalAmount || 0} RON</strong>
+                <span>stransi din {donationReport.targetAmount || 0} RON</span>
+              </div>
+              <div>
+                <strong>{donationReport.percentage || 0}%</strong>
+                <span>{donationReport.isTargetReached ? "tinta atinsa" : "progres donatii"}</span>
+              </div>
             </div>
-            <div className="impact-item">
-              <strong>{donationStats.totalCount || 0}</strong>
-              <span>donatii</span>
+            <div className="progress donation-progress" role="progressbar" aria-valuenow={donationReport.percentage || 0} aria-valuemin="0" aria-valuemax="100">
+              <div className="progress-bar" style={{ width: `${donationReport.percentage || 0}%` }}></div>
             </div>
+            {donationReport.isTargetReached && (
+              <p className="form-help">Campania a ajuns la 100% si este marcata automat ca inactiva.</p>
+            )}
           </div>
+
           <div className="admin-list mt-3">
-            {donations.map((donation) => (
+            {donationReport.donations.map((donation) => (
               <div className="admin-row" key={donation._id}>
                 <div>
                   <strong>{donation.donorName} - {donation.amount} {donation.currency}</strong>
-                  <span>{donation.campaignId?.title || "campanie"} - {donation.status}</span>
+                  <span>{donation.email} - {donation.status}</span>
                 </div>
               </div>
             ))}
-            {donations.length === 0 && <p>Nu exista donatii.</p>}
+            {donationReport.donations.length === 0 && <p>Nu exista donatii pentru campania selectata.</p>}
           </div>
         </section>
       )}
