@@ -19,45 +19,30 @@ function Home() {
         </div>
       </section>
 
-      <section className="impact-grid">
-        <div className="impact-item">
-          <strong>4</strong>
-          <span>functionalitati cerute</span>
-        </div>
-        <div className="impact-item">
-          <strong>MongoDB</strong>
-          <span>baza de date documentara</span>
-        </div>
-        <div className="impact-item">
-          <strong>Admin</strong>
-          <span>gestionare continut si utilizatori</span>
-        </div>
-      </section>
-
-      <section className="row g-4 mt-2">
+      <section className="row g-4 mt-4">
         <div className="col-md-3">
-          <div className="feature-card">
+          <Link className="feature-card feature-link" to="/petition">
             <h3>Petitie</h3>
             <p>Utilizatorii autentificati sustin cauza prin semnaturi salvate in baza de date.</p>
-          </div>
+          </Link>
         </div>
         <div className="col-md-3">
-          <div className="feature-card">
+          <Link className="feature-card feature-link" to="/volunteer">
             <h3>Voluntariat</h3>
             <p>Cererile de adeziune sunt trimise online si aprobate de administrator.</p>
-          </div>
+          </Link>
         </div>
         <div className="col-md-3">
-          <div className="feature-card">
+          <Link className="feature-card feature-link" to="/donate">
             <h3>Donatii</h3>
             <p>Flux de donatie simulat, suficient pentru demo si sigur pentru proiect.</p>
-          </div>
+          </Link>
         </div>
         <div className="col-md-3">
-          <div className="feature-card">
+          <Link className="feature-card feature-link" to="/forum">
             <h3>Forum</h3>
             <p>Comunitatea deschide discutii, iar adminul poate modera continutul.</p>
-          </div>
+          </Link>
         </div>
       </section>
     </div>
