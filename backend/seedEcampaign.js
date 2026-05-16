@@ -22,25 +22,27 @@ async function seed() {
     ForumReply.deleteMany(),
   ]);
 
-  let admin = await User.findOne({ username: "admin" });
-  if (!admin) {
-    admin = await User.create({
+  const admin = await User.findOneAndUpdate(
+    { username: "admin" },
+    {
       username: "admin",
       email: "admin@example.com",
       password: await bcrypt.hash("admin123", 10),
       isAdmin: true,
-    });
-  }
+    },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  );
 
-  let demoUser = await User.findOne({ username: "demo" });
-  if (!demoUser) {
-    demoUser = await User.create({
+  const demoUser = await User.findOneAndUpdate(
+    { username: "demo" },
+    {
       username: "demo",
       email: "demo@example.com",
       password: await bcrypt.hash("demo123", 10),
       isAdmin: false,
-    });
-  }
+    },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  );
 
   const [schoolCampaign, healthCampaign] = await Campaign.create([
     {

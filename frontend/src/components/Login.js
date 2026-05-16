@@ -20,7 +20,7 @@ function Login() {
       alert("Autentificare reusita!");
       window.location.href = "/";
     } catch (err) {
-      alert("Eroare la login. Verifica datele.");
+      alert(err.response?.data?.msg || "Eroare la login. Verifica daca backend-ul este pornit.");
     }
   };
 
@@ -36,7 +36,7 @@ function Login() {
       alert("Inregistrare reusita! Te poti autentifica.");
       setIsRegister(false);
     } catch (err) {
-      alert("Eroare la inregistrare. Incearca un alt nume.");
+      alert(err.response?.data?.msg || "Eroare la inregistrare. Incearca un alt nume.");
     }
   };
 

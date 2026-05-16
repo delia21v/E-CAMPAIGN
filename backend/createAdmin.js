@@ -1,27 +1,28 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+require("dotenv").config();
+
 const User = require("./models/User");
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(async () => {
-  const existing = await User.findOne({ username: "admin" });
-  if (existing) {
-    console.log("Admin deja există.");
-    return mongoose.disconnect();
-  }
+mongoose.connect(process.env.MONGO_URI)
+  .then(async () => {
+    const hashedPassword = await bcrypt.hash("admin123", 10);
 
-  const hashedPassword = await bcrypt.hash("admin", 10);
-  const adminUser = new User({
-    username: "admin",
-    password: hashedPassword,
-    isAdmin: true
+    await User.findOneAndUpdate(
+      { username: "admin" },
+      {
+        username: "admin",
+        email: "admin@example.com",
+        password: hashedPassword,
+        isAdmin: true,
+      },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
+
+    console.log("Utilizator admin sincronizat cu succes.");
+    console.log("Admin: admin / admin123");
+    mongoose.disconnect();
+  })
+  .catch((err) => {
+    console.error("Eroare la conectarea MongoDB:", err);
   });
-
-  await adminUser.save();
-  console.log("Utilizator admin creat cu succes.");
-  mongoose.disconnect();
-}).catch(err => {
-  console.error("Eroare la conectarea MongoDB:", err);
-});

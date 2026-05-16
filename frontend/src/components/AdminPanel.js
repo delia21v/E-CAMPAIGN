@@ -3,6 +3,16 @@ import axios from "axios";
 
 const API_URL = process.env.REACT_APP_API_URL || "";
 
+function getRequestErrorMessage(err) {
+  if (err.response) {
+    return `${err.response.status} - ${err.response.data?.msg || "eroare de la server"}`;
+  }
+  if (err.request) {
+    return "backend-ul nu raspunde";
+  }
+  return err.message || "eroare necunoscuta";
+}
+
 function AdminPanel() {
   const token = localStorage.getItem("token");
   const [activeTab, setActiveTab] = useState("campaigns");
@@ -62,10 +72,25 @@ function AdminPanel() {
   };
 
   const fetchAll = async () => {
+    const loadStep = async (label, action) => {
+      try {
+        await action();
+      } catch (err) {
+        err.adminSection = label;
+        throw err;
+      }
+    };
+
     try {
-      await Promise.all([fetchCampaigns(), fetchDonations(), fetchVolunteers(), fetchTopics()]);
+      await Promise.all([
+        loadStep("campanii", fetchCampaigns),
+        loadStep("donatii", fetchDonations),
+        loadStep("voluntari", fetchVolunteers),
+        loadStep("forum", fetchTopics),
+      ]);
     } catch (err) {
-      alert("Datele de administrare nu au putut fi incarcate.");
+      console.error("Eroare incarcare admin:", err);
+      alert(`Datele de administrare nu au putut fi incarcate (${err.adminSection || "general"}: ${getRequestErrorMessage(err)}).`);
     }
   };
 
